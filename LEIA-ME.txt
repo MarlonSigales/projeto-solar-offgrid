@@ -1,0 +1,22 @@
+SISTEMA FOTOVOLTAICO OFF-GRID — UFPel · Engenharia Agrícola · Energização Rural
+================================================================================
+
+Dimensionamento e análise de sistemas fotovoltaicos isolados pelo pior caso
+(CRESESB/SunData), com baterias, vida útil, picos de partida, CCA, BMS,
+controlador, inversor, transferência, proteções, cabos, barramentos, unifilar,
+materiais e custos. Projeto em JSON e relatório em PDF. Passe o mouse sobre os
+campos com "?" para ver os balões de ajuda de preenchimento.
+
+COMO RODAR (com PHP: ativa a busca automática no CRESESB)
+  1. Abra um terminal nesta pasta e rode:   php -S localhost:8000
+  2. Acesse:                                 http://localhost:8000
+
+SEM PHP (duplo clique no index.html ou GitHub Pages)
+  Tudo funciona, exceto a busca automática no CRESESB: use a consulta manual
+  (copiar a tabela do SunData e colar) ou a alternativa NASA POWER.
+
+sundata.php: o SunData não tem API pública documentada. Se a consulta automática
+não reconhecer a tabela, abra o SunData no navegador, faça uma consulta, inspecione
+o formulário (F12 > Rede) e ajuste os nomes dos campos no array $campos.
+
+Documentação completa: README.md
