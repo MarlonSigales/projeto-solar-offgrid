@@ -281,7 +281,7 @@ A etapa 12 passa a listar só a **adequação**:
 
 ## Projeto em JSON
 
-Formato `offgrid-agro`, versão 1. Exemplo: [`offgrid-exemplo-sitio-leiteiro.json`](offgrid-exemplo-sitio-leiteiro.json).
+Formato `offgrid-agro`, versão 1. Exemplos: [`offgrid-exemplo-sitio-leiteiro.json`](offgrid-exemplo-sitio-leiteiro.json) (sistema isolado novo) e [`projetos/exemplo-backup-residencial.json`](projetos/exemplo-backup-residencial.json) (backup residencial existente, 24 V chumbo, análise e adequação).
 
 | Chave | Conteúdo |
 |---|---|
@@ -290,8 +290,8 @@ Formato `offgrid-agro`, versão 1. Exemplo: [`offgrid-exemplo-sitio-leiteiro.jso
 | `local` | latitude, longitude, fonte, estação e linhas do SunData (`rows`), linha selecionada (`sel`) |
 | `temp` | temperaturas mínima e máxima |
 | `telhado` | `usar`, recuo, forma de medir e `faces` (nome, orientação, inclinação, comprimento, largura, módulos) |
-| `entrada`, `cargas`, `conta` | consumo por cargas ou pela conta |
-| `crit` | horas de autonomia (`haut`) e cargas mantidas (`autCargas`), falta, recuperação, temperatura, pico, tecnologia, DoD, PR, rendimentos |
+| `entrada`, `cargas`, `conta` | consumo por cargas (com `meses` para cargas sazonais) ou pela conta |
+| `crit` | operação (`isolado` ou `backup`), horas de autonomia (`haut`) e cargas mantidas (`autCargas`), falta, recuperação, temperatura, pico, tecnologia, DoD, PR, rendimentos |
 | `eq` | catálogos de módulo, bateria, controlador e inversor |
 | `exist` | sistema instalado (modo análise) |
 | `estado`, `analise` | medições e dados do analisador de baterias |

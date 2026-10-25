@@ -1,0 +1,650 @@
+{
+  "formato": "offgrid-agro",
+  "versao": 1,
+  "id": {
+    "cliente": "Residência (exemplo de aula)",
+    "obra": "Backup solar residencial 24 V — análise do sistema existente",
+    "local": "Área urbana",
+    "municipio": "Pelotas/RS",
+    "rt": "Turma 2026.2",
+    "crea": "",
+    "data": "2026-10-25"
+  },
+  "local": {
+    "lat": -31.6,
+    "lon": -52.45,
+    "fonte": "Exemplo de aula (irradiação horizontal ilustrativa; planos inclinados calculados pela ferramenta)",
+    "estacao": "Exemplo – região de Pelotas",
+    "municipio": "Pelotas, RS",
+    "dist": "—",
+    "rows": [
+      {
+        "nome": "Plano Horizontal",
+        "ang": 0,
+        "dir": "N",
+        "m": [
+          6.4,
+          5.8,
+          4.9,
+          3.8,
+          2.9,
+          2.4,
+          2.6,
+          3.3,
+          4.1,
+          5.3,
+          6.3,
+          6.7
+        ],
+        "media": 4.54,
+        "delta": 4.3
+      },
+      {
+        "nome": "Ângulo igual a latitude",
+        "ang": 32,
+        "dir": "N",
+        "m": [
+          5.67,
+          5.54,
+          5.19,
+          4.6,
+          4.04,
+          3.54,
+          3.74,
+          4.17,
+          4.52,
+          5.22,
+          5.69,
+          5.81
+        ],
+        "media": 4.81,
+        "delta": 2.27
+      },
+      {
+        "nome": "Maior média anual",
+        "ang": 25,
+        "dir": "N",
+        "m": [
+          5.93,
+          5.7,
+          5.23,
+          4.51,
+          3.87,
+          3.36,
+          3.56,
+          4.06,
+          4.51,
+          5.33,
+          5.92,
+          6.11
+        ],
+        "media": 4.84,
+        "delta": 2.75
+      },
+      {
+        "nome": "Maior mínimo mensal",
+        "ang": 58,
+        "dir": "N",
+        "m": [
+          4.34,
+          4.5,
+          4.6,
+          4.48,
+          4.26,
+          3.85,
+          4.01,
+          4.18,
+          4.15,
+          4.36,
+          4.41,
+          4.36
+        ],
+        "media": 4.29,
+        "delta": 0.75
+      }
+    ],
+    "sel": 3,
+    "consultado": "",
+    "obs": "Irradiação ilustrativa da região de Pelotas: substitua pela consulta ao CRESESB/SunData da coordenada da casa."
+  },
+  "temp": {
+    "tmin": -2,
+    "tmax": 36
+  },
+  "cargas": [
+    {
+      "nat": "comp",
+      "nome": "Geladeira Electrolux IB53 (inverter, 454 L) — 45 kWh/mês estimado",
+      "tipo": "CA",
+      "q": 1,
+      "w": 110,
+      "h": 13.6,
+      "fs": 1,
+      "kp": 2,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Lâmpadas LED Zigbee 10 W (2 acesas, 18 h–2 h)",
+      "tipo": "CA",
+      "q": 2,
+      "w": 10,
+      "h": 8,
+      "fs": 1,
+      "kp": 1,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Lâmpadas Zigbee em espera (5 × 0,4 W)",
+      "tipo": "CA",
+      "q": 5,
+      "w": 0.4,
+      "h": 24,
+      "fs": 1,
+      "kp": 1,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Central Zigbee",
+      "tipo": "CA",
+      "q": 1,
+      "w": 2,
+      "h": 24,
+      "fs": 1,
+      "kp": 1,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Servidor no carregador 5 V 3,2 A (máx. 16 W)",
+      "tipo": "CA",
+      "q": 1,
+      "w": 16,
+      "h": 24,
+      "fs": 1,
+      "kp": 1,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "TVs em stand-by",
+      "tipo": "CA",
+      "q": 2,
+      "w": 1,
+      "h": 24,
+      "fs": 1,
+      "kp": 1,
+      "crit": 0,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Notebook (fonte 65 W)",
+      "tipo": "CA",
+      "q": 1,
+      "w": 65,
+      "h": 4,
+      "fs": 1,
+      "kp": 1,
+      "crit": 0,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Roteador Huawei Wi-Fi 6",
+      "tipo": "CA",
+      "q": 1,
+      "w": 10,
+      "h": 24,
+      "fs": 1,
+      "kp": 1,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Carregadores de celular",
+      "tipo": "CA",
+      "q": 2,
+      "w": 10,
+      "h": 2,
+      "fs": 1,
+      "kp": 1,
+      "crit": 1,
+      "meses": ""
+    },
+    {
+      "nat": "ele",
+      "nome": "Google Home Mini",
+      "tipo": "CA",
+      "q": 2,
+      "w": 2,
+      "h": 24,
+      "fs": 1,
+      "kp": 1,
+      "crit": 0,
+      "meses": ""
+    },
+    {
+      "nat": "mot",
+      "nome": "Ventilador de coluna Britânia 40 cm (160 W) — talvez",
+      "tipo": "CA",
+      "q": 1,
+      "w": 160,
+      "h": 8,
+      "fs": 1,
+      "kp": 2,
+      "crit": 0,
+      "meses": "dez-mar"
+    }
+  ],
+  "crit": {
+    "operacao": "backup",
+    "vbanco": "24",
+    "haut": 24,
+    "autCargas": "todas",
+    "aut": 2,
+    "fnub": 0,
+    "nnub": 6,
+    "hfalta": 0,
+    "nfalta": 6,
+    "drec": 0,
+    "tbat": 25,
+    "tpart": 0.5,
+    "kfrio": 1.8,
+    "bat": "pb",
+    "dod": 0.5,
+    "ftemp": 0.95,
+    "etaInv": 0.9,
+    "etaCabo": 0.97,
+    "pr": 0.8,
+    "vac": 220,
+    "fases": 1
+  },
+  "eq": {
+    "mod": {
+      "nome": "Canadian Solar HiKu6 CS6W-560MS 560 W",
+      "p": 560,
+      "voc": 50,
+      "vmp": 42.1,
+      "isc": 14.1,
+      "imp": 13.31,
+      "bvoc": -0.26,
+      "fusmax": 25,
+      "comp": 2.278,
+      "larg": 1.134
+    },
+    "bat": {
+      "nome": "Bateria chumbo 12 V 180 Ah (SOH 80%)",
+      "v": 12,
+      "ah": 180,
+      "ri": 5,
+      "imax": 180,
+      "ipico": 900,
+      "tpico": 5,
+      "cca": 0,
+      "bms": "nao"
+    },
+    "ctrl": {
+      "nome": "Controlador MPPT PowMr 80 A",
+      "imax": 80,
+      "vocmax": 160,
+      "p48": 3840
+    },
+    "inv": {
+      "nome": "Inversor Mensela 2 kW 24 V",
+      "p": 2000,
+      "surto": 2,
+      "eta": 0.9,
+      "carr": 0,
+      "vcorte": 0
+    }
+  },
+  "backup": {
+    "tipo": "rede",
+    "chave": "auto",
+    "pger": 0
+  },
+  "cabos": {
+    "lfv": 15,
+    "lbat": 1,
+    "lca": 10,
+    "lger": 5,
+    "dvfv": 2,
+    "dvbat": 1,
+    "dvca": 2
+  },
+  "estado": {
+    "ocv": "",
+    "cmed": 144,
+    "rmed": "",
+    "ccamed": "",
+    "vmax": "",
+    "vmin": "",
+    "nivel": "bateria",
+    "idade": "",
+    "ciclos": "",
+    "v0": "",
+    "v1": "",
+    "i1": ""
+  },
+  "modo": "existente",
+  "entrada": "lista",
+  "conta": {
+    "meses": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "pior": "",
+    "mesPior": 0,
+    "amp": 25,
+    "fcc": 0,
+    "fcrit": 1,
+    "psim": "",
+    "pmotor": "",
+    "kp": 6
+  },
+  "exist": {
+    "ns": 2,
+    "nstr": 1,
+    "bns": 2,
+    "bnp": 1,
+    "nctrl": 1,
+    "ninv": 1,
+    "sfv": "",
+    "sctrl": "",
+    "sinv": "",
+    "sbat": "",
+    "sca": "",
+    "fusbat": "",
+    "djfv": "",
+    "protCtrl": "nao",
+    "protInv": "nao",
+    "djsaida": "",
+    "barra": 80.6
+  },
+  "analise": [],
+  "extra": {
+    "nome": "Ventilador extra 160 W",
+    "w": 160,
+    "kp": 2
+  },
+  "telhado": {
+    "usar": "sim",
+    "margem": 0.4,
+    "medida": "plano",
+    "faces": [
+      {
+        "nome": "Telhado norte (a confirmar)",
+        "az": "N",
+        "inc": "30%",
+        "comp": "",
+        "larg": "",
+        "nmod": 2
+      }
+    ]
+  },
+  "precos": {
+    "mod": {
+      "d": "Módulo fotovoltaico 550 W monocristalino",
+      "un": "pç",
+      "pu": 850,
+      "f": "Clarke Energia, mai/2026: R$ 750–1.500 (550 W)"
+    },
+    "bat_li": {
+      "d": "Bateria LiFePO4 51,2 V 100 Ah 5,12 kWh",
+      "un": "pç",
+      "pu": 6989,
+      "f": "Meu Gerador, out/2026 (Dyness DLC5.0C, Pix)"
+    },
+    "bat_pb": {
+      "d": "Bateria estacionária 12 V 220 Ah",
+      "un": "pç",
+      "pu": 1559,
+      "f": "Atacadão das Baterias, out/2026 (Freedom DF4100)"
+    },
+    "bat_agm": {
+      "d": "Bateria VRLA AGM 12 V 200 Ah",
+      "un": "pç",
+      "pu": 1900,
+      "f": "estimativa – confirmar cotação"
+    },
+    "ctrl": {
+      "d": "Controlador de carga MPPT 60 A 12/24/48 V (Voc 250 V)",
+      "un": "pç",
+      "pu": 1032,
+      "f": "Minha Casa Solar, out/2026 (SRNE MC4860N25)"
+    },
+    "inv": {
+      "d": "Inversor off-grid senoidal pura 5 kW 48 V (carregador)",
+      "un": "pç",
+      "pu": 3951,
+      "f": "Meu Gerador, out/2026 (MUST PV30-5048)"
+    },
+    "estr": {
+      "d": "Estrutura de fixação (por módulo)",
+      "un": "pç",
+      "pu": 180,
+      "f": "estimativa – confirmar cotação"
+    },
+    "sbox": {
+      "d": "String box CC (seccionadora + DPS CC + fusíveis gPV)",
+      "un": "pç",
+      "pu": 650,
+      "f": "estimativa – confirmar cotação"
+    },
+    "fusbat": {
+      "d": "Fusível NH/classe T + base para banco de baterias",
+      "un": "cj",
+      "pu": 350,
+      "f": "estimativa – confirmar cotação"
+    },
+    "seccc": {
+      "d": "Seccionadora CC de bateria (chave rotativa)",
+      "un": "pç",
+      "pu": 280,
+      "f": "estimativa – confirmar cotação"
+    },
+    "disjcc": {
+      "d": "Disjuntor CC 2P (controlador/inversor)",
+      "un": "pç",
+      "pu": 120,
+      "f": "estimativa – confirmar cotação"
+    },
+    "barra": {
+      "d": "Barramento CC (+/−) isolado com tampa",
+      "un": "cj",
+      "pu": 260,
+      "f": "estimativa – confirmar cotação"
+    },
+    "shunt": {
+      "d": "Monitor de bateria com shunt",
+      "un": "pç",
+      "pu": 450,
+      "f": "estimativa – confirmar cotação"
+    },
+    "qdca": {
+      "d": "Quadro CA: disjuntores, DR 30 mA, DPS CA, barramentos",
+      "un": "cj",
+      "pu": 750,
+      "f": "estimativa – confirmar cotação"
+    },
+    "ats": {
+      "d": "Chave de transferência automática (ATS) com intertravamento",
+      "un": "pç",
+      "pu": 1200,
+      "f": "estimativa – confirmar cotação"
+    },
+    "rev": {
+      "d": "Chave reversora manual 1-0-2 com intertravamento",
+      "un": "pç",
+      "pu": 420,
+      "f": "estimativa – confirmar cotação"
+    },
+    "cabo_fv": {
+      "d": "Cabo solar 1,8 kV CC (preço por m·mm²)",
+      "un": "m·mm²",
+      "pu": 1.6,
+      "f": "estimativa – confirmar cotação"
+    },
+    "cabo_bat": {
+      "d": "Cabo flexível 1 kV para bateria (preço por m·mm²)",
+      "un": "m·mm²",
+      "pu": 1.4,
+      "f": "estimativa – confirmar cotação"
+    },
+    "cabo_ca": {
+      "d": "Cabo flexível 750 V/1 kV CA (preço por m·mm²)",
+      "un": "m·mm²",
+      "pu": 1.1,
+      "f": "estimativa – confirmar cotação"
+    },
+    "mc4": {
+      "d": "Conectores MC4 (par)",
+      "un": "par",
+      "pu": 18,
+      "f": "estimativa – confirmar cotação"
+    },
+    "terra": {
+      "d": "Aterramento: haste 5/8\" × 2,4 m, cabo 16 mm², conexões",
+      "un": "cj",
+      "pu": 380,
+      "f": "estimativa – confirmar cotação"
+    },
+    "abrigo": {
+      "d": "Abrigo/rack ventilado para baterias e equipamentos",
+      "un": "cj",
+      "pu": 900,
+      "f": "estimativa – confirmar cotação"
+    },
+    "supercap": {
+      "d": "Módulo supercapacitor 16 V 500 F (ESR ≈ 2 mΩ, balanceamento interno)",
+      "un": "pç",
+      "pu": 3500,
+      "f": "estimativa – confirmar cotação"
+    },
+    "supercap58": {
+      "d": "Módulo supercapacitor 16 V 58 F (ESR ≈ 22 mΩ, balanceamento interno)",
+      "un": "pç",
+      "pu": 1600,
+      "f": "estimativa – confirmar cotação"
+    },
+    "precarga": {
+      "d": "Kit de pré-carga do banco capacitivo (resistor de potência, chave, fusível)",
+      "un": "cj",
+      "pu": 250,
+      "f": "estimativa – confirmar cotação"
+    },
+    "bms_ext": {
+      "d": "BMS para células LiFePO4 com balanceamento ativo e comunicação",
+      "un": "pç",
+      "pu": 1800,
+      "f": "estimativa – confirmar cotação"
+    },
+    "comm": {
+      "d": "Cabos/hub de comunicação BMS ↔ inversor (CAN/RS485)",
+      "un": "cj",
+      "pu": 150,
+      "f": "estimativa – confirmar cotação"
+    },
+    "bal_pb": {
+      "d": "Balanceador/equalizador para baterias de 12 V em série",
+      "un": "pç",
+      "pu": 450,
+      "f": "estimativa – confirmar cotação"
+    }
+  },
+  "mo": {
+    "heng": 3,
+    "peng": 200,
+    "hele": 4,
+    "pele": 120,
+    "haux": 0,
+    "paux": 45,
+    "km": 20,
+    "pkm": 1.8,
+    "desp": 0,
+    "bdi": 20,
+    "imp": 10,
+    "f": "Hora de eletricista com NR-10: R$ 150–250; residencial R$ 80–150 (TáContratado, set/2026). Engenharia e auxiliar: estimativa – ajuste à sua região."
+  },
+  "exemplo": true,
+  "resultados": {
+    "modo": "existente",
+    "entrada": "lista",
+    "mesDimensionamento": "Jun",
+    "consumoMensalWhDia": [
+      4100,
+      4100,
+      4100,
+      2820,
+      2820,
+      2820,
+      2820,
+      2820,
+      2820,
+      2820,
+      2820,
+      4100
+    ],
+    "ccaNecessario": 52.155531439681425,
+    "ccaEsperado": 600,
+    "itensAdequar": [
+      "Gerador FV",
+      "Capacidade do banco",
+      "Proteção controlador → bateria",
+      "Proteção bateria → inversor",
+      "Meses atendidos"
+    ],
+    "hsp": 3.85,
+    "mesCritico": "Jun",
+    "consumoWh": 4100,
+    "ebatWh": 4696.449026345934,
+    "pfvW": 1120,
+    "modulos": 2,
+    "serie": 2,
+    "strings": 1,
+    "bancoV": 24,
+    "bancoAh": 180,
+    "baterias": 2,
+    "dodDiario": 1.3589262229010226,
+    "autonomiaDias": 0.3495406829268292,
+    "faltaHoras": 14.236259602649007,
+    "recargaDias": null,
+    "vidaAnos": 5,
+    "vidaCiclosAnos": 72.19763081549036,
+    "vidaCalendarioAnos": 5,
+    "picoA": 25.91684822076979,
+    "quedaV": 24.202319483348894,
+    "capacitorF": 0,
+    "estado": {
+      "soc": null,
+      "soh": 0.8,
+      "soeWh": null,
+      "sopW": null,
+      "dvBalanceamentoV": null,
+      "vidaRestanteAnos": 5
+    },
+    "controladores": 1,
+    "inversor": 2000,
+    "totalR$": 17207.52,
+    "geradoEm": "2026-10-25T00:48:00.331Z"
+  }
+}
