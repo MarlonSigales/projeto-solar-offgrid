@@ -8,7 +8,7 @@
     "municipio": "Pelotas/RS",
     "rt": "Turma 2026.2",
     "crea": "",
-    "data": "2026-10-24"
+    "data": "2026-10-25"
   },
   "local": {
     "lat": -31.6,
@@ -192,6 +192,8 @@
   ],
   "crit": {
     "vbanco": "auto",
+    "haut": 48,
+    "autCargas": "todas",
     "aut": 2,
     "fnub": 0,
     "nnub": 6,
@@ -388,6 +390,11 @@
       "soc": 73
     }
   ],
+  "extra": {
+    "nome": "Carga a avaliar",
+    "w": "",
+    "kp": 1
+  },
   "telhado": {
     "usar": "nao",
     "margem": 0.4,
@@ -648,7 +655,7 @@
     },
     "controladores": 3,
     "inversor": 5000,
-    "totalR$": 120039.48000000001,
-    "geradoEm": "2026-10-24T02:45:40.494Z"
+    "totalR$": 120514.68000000001,
+    "geradoEm": "2026-10-25T00:26:07.634Z"
   }
 }

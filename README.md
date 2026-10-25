@@ -58,11 +58,11 @@ Todo campo com **?** tem um balão que explica **o que é, onde obter o dado e q
 | 01 | Identificação | cliente, obra, RT; **tipo de estudo**: sistema novo ou análise de existente | carimbo e capa |
 | 02 | Local e irradiação | coordenada (ou localização atual); CRESESB automático, colado ou NASA POWER; temperaturas mínima e máxima; **águas do telhado** (opcional) | HSP do pior caso, captação de cada água |
 | 03 | Cargas | **cargas uma a uma** (tipo: resistiva, eletrônica, motor, compressor, soft-starter, inversor de frequência; crítica ou não) **ou conta de energia** (mês de maior gasto ou 12 meses + variação anual) | consumo, potência simultânea, surto, **mês de dimensionamento** |
-| 04 | Critérios e equipamentos | dias nublados, falta da concessionária, recuperação, temperatura do abrigo, pico de partida; tecnologia e dados de catálogo de módulo, bateria, controlador e inversor | — |
+| 04 | Critérios e equipamentos | **horas de autonomia no pior caso (sem concessionária e nublado)** e quais cargas ficam ligadas, falta da concessionária com sol, recuperação, temperatura do abrigo, pico de partida; tecnologia e dados de catálogo de módulo, bateria, controlador e inversor | — |
 | 05 | Sistema existente | (modo análise) módulos em série e strings, baterias em série e paralelo, controladores, inversores, seção dos cabos, fusível do banco | necessário × existente, recomendações, lista de adequação |
 | 06 | Banco de baterias | — | capacidade, série × paralelo, DoD, vida útil (Miner + temperatura), picos e capacitor, CCA, BMS e balanceamento |
 | 07 | Estado da bateria | medições: tensão em repouso, capacidade, resistência, CCA, tensões máx./mín., teste de carga; **dados do analisador** (uma linha por bateria ou CSV colado) | SOC, SOH, SoE, SoP, SoB, CCA, vida restante, baterias a trocar |
-| 08 | Gerador FV e controlador | — | módulos, strings, janela de tensão com a temperatura, controladores, arranjo por água |
+| 08 | Gerador FV e controlador | carga a avaliar (opcional) | módulos, strings, janela de tensão, controladores, arranjo por água, **análise mês a mês** (atende ou não, saldo, sobra) e **cargas que podem ser adicionadas** |
 | 09 | Inversor e transferência | fonte reserva (gerador ou rede) e tipo de chave (automática ou manual) | inversor, surto, gerador, chave |
 | 10 | Proteções e barramentos | comprimentos e quedas de tensão | fusíveis, seccionadoras, DPS, DR, **cabos por trecho com PE**, **barramentos**, **comparação 12/24/48 V** |
 | 11 | Esquema elétrico | — | unifilar (SVG e PDF) |
@@ -85,6 +85,10 @@ Todo campo com **?** tem um balão que explica **o que é, onde obter o dado e q
 
 **08 · Gerador FV**
 ![Etapa 08](docs/img/etapa08-fv.png)
+
+**08 · Análise mês a mês e cargas que podem ser adicionadas**
+![Mês a mês](docs/img/mes-a-mes.png)
+![Cargas adicionáveis](docs/img/cargas-adicionaveis.png)
 
 **10 · Proteções, cabos e barramentos**
 ![Etapa 10](docs/img/etapa10-protecoes.png)
@@ -149,9 +153,9 @@ O **mês de dimensionamento** é o de maior E_bat,m/HSP_m. Uma conta alta no ver
 ### Banco de baterias
 
 ```
-E_nublado = E_bat · N_nub · (1 − f_nub)
-E_falta   = E_crítica · h_falta / 24
-C [Wh]    = máx(E_nublado; E_falta) / (DoD · f_T)
+E_autonomia = E (todas ou só críticas) · h_aut / 24 · (1 − f_nub)     (h_aut = horas sem concessionária e nublado)
+E_falta     = E_crítica · h_falta / 24                                (falta longa da rede com sol)
+C [Wh]      = máx(E_autonomia; E_falta) / (DoD · f_T)
 C [Ah]    = C[Wh] / V_banco
 Ns = V_banco / V_unid      Np = ⌈C / Ah_unid⌉
 ```
@@ -159,6 +163,12 @@ Ns = V_banco / V_unid      Np = ⌈C / Ah_unid⌉
 Tempo de recarga depois do evento: t = E_aut / [(P_FV·HSP·PR − E_FV)·η_bat], no pior mês.
 
 Opcionalmente, "dias para recuperar" aumenta o gerador FV para encurtar esse tempo.
+
+### Análise mês a mês
+
+Além do pior caso, a ferramenta mostra os 12 meses: consumo, geração, energia que o FV precisa gerar, saldo, se atende (✓ ou ✗ com o % atendido) e a **sobra útil** (excedente convertido em energia CA, passando pela bateria e pelo inversor). Os meses que não fecham ficam marcados e geram aviso; no modo de cargas individuais, a ferramenta sugere quanto cortar e em qual carga (não críticas primeiro).
+
+**Cargas que podem ser adicionadas**: para uma lista de cargas rurais típicas (bombas, freezer, exaustor, ordenhadeira, picador, aquecedor, iluminação) e para uma carga informada por você, mostra quantas horas por dia ela pode funcionar em cada mês só com a sobra, e no ano todo (menor valor). A carga só aparece como possível se couber no inversor (potência contínua e surto de partida).
 
 ### Vida útil
 
@@ -237,6 +247,9 @@ A chave comuta **fase e neutro**, com intertravamento mecânico.
   - fusível gPV quando há 3 ou mais strings no mesmo MPPT, com 1,5·Isc ≤ In ≤ 2,4·Isc;
   - seccionadora CC de no mínimo 1,25·Isc·strings;
   - DPS CC com Ucpv ≥ Voc,máx.
+- **Arranjo FV → controlador**: disjuntor CC por MPPT com In ≥ 1,25·Isc·strings e Ue ≥ Voc,máx. Até 250 Vcc serve minidisjuntor 2P curva C como o WEG MDW/MDWH (Ue 250 Vcc com 2 polos em série, Icu 10 kA até 63 A, catálogo WEG); acima disso, disjuntor próprio para FV (600/1000 Vcc).
+- **Controlador e inversor → barramento**: disjuntor CC (MDW atende até 60 Vcc por polo, Icu 10 kA, até 125 A); acima de 125 A, caixa moldada CC ou fusível NH.
+- **Saída CA do inversor**: disjuntor curva C com In ≥ corrente nominal do inversor e ≤ Iz do cabo (NBR 5410); a ferramenta confere que o surto do inversor fica abaixo de 5·In.
 - **Banco**: fusível NH ou classe T de no mínimo 1,25·máx(I de descarga; I de carga), instalado junto ao polo positivo.
 - **Cabos, trecho a trecho**: string, arranjo, controlador, inversor, banco, interligação entre baterias, cargas CC, saída CA, gerador até a chave e chave até o quadro.
   - A seção é a maior entre a **capacidade** (NBR 5410, Tab. 36, B1) e a **queda de tensão**, S = 2·L·I/(56·ΔV).
@@ -278,10 +291,11 @@ Formato `offgrid-agro`, versão 1. Exemplo: [`offgrid-exemplo-sitio-leiteiro.jso
 | `temp` | temperaturas mínima e máxima |
 | `telhado` | `usar`, recuo, forma de medir e `faces` (nome, orientação, inclinação, comprimento, largura, módulos) |
 | `entrada`, `cargas`, `conta` | consumo por cargas ou pela conta |
-| `crit` | autonomia, falta, recuperação, temperatura, pico, tecnologia, DoD, PR, rendimentos |
+| `crit` | horas de autonomia (`haut`) e cargas mantidas (`autCargas`), falta, recuperação, temperatura, pico, tecnologia, DoD, PR, rendimentos |
 | `eq` | catálogos de módulo, bateria, controlador e inversor |
 | `exist` | sistema instalado (modo análise) |
 | `estado`, `analise` | medições e dados do analisador de baterias |
+| `extra` | carga a avaliar na análise de cargas adicionáveis |
 | `backup`, `cabos`, `precos`, `mo` | reserva e chave, comprimentos, preços com fonte, mão de obra e BDI |
 | `resultados` | resumo calculado ao exportar (somente leitura) |
 
