@@ -750,7 +750,7 @@ function calcular() {
   });
   if (R.mesesFalha.length && R.entrada === "lista") {
     const pior = R.mensal.reduce((a, b) => b.falta > a.falta ? b : a);
-    R.cortes = { mes: pior.m, falta: pior.falta, cargas: R.cargas.filter(l => l.e > 0).map(l => ({ nome: l.nome, crit: critica(l), h: n(l.h), corte: pior.falta / (n(l.q) * n(l.w)) })).filter(x => x.corte <= 0.8 * x.h).sort((a, b) => (a.crit - b.crit) || (a.corte / a.h - b.corte / b.h)).slice(0, 3) };
+    R.cortes = { mes: pior.m, falta: pior.falta, cargas: R.cargas.filter(l => l.e > 0 && lerMeses(l.meses)[MESES.indexOf(pior.m)]).map(l => ({ nome: l.nome, crit: critica(l), h: n(l.h), corte: pior.falta / (n(l.q) * n(l.w)) })).filter(x => x.corte <= 0.8 * x.h).sort((a, b) => (a.crit - b.crit) || (a.corte / a.h - b.corte / b.h)).slice(0, 3) };
     if (!R.cortes.cargas.length) R.cortes.cargas = [{ nome: "várias cargas ao mesmo tempo (nenhuma sozinha resolve)", h: 0, corte: 0 }];
   }
   R.est = estadoBat(R);
