@@ -293,7 +293,7 @@ A mesma casa rural de 4 pessoas (interior de Pelotas/RS, sem rede) em três arqu
 
 A última coluna não é um arquivo: é a mesma casa com o chuveiro ligado no inversor e na bateria, sem gerador, só para referência.
 
-Preços de referência de nov/2026 (Minha Casa Solar, Pix; gerador: Loja do Mecânico).
+Preços de referência de nov/2026: mediana de 3 ou mais lojas brasileiras por item (Minha Casa Solar, Mercado Livre, Magazine Luiza, Pichau, Loja do Mecânico e outras), com cabos e proteções. Itens sem oferta no Brasil: menor preço do exterior × câmbio × 2 (100% de imposto). O banco de cotações com links fica na planilha de preços do curso.
 
 | Resultado | Eletrodomésticos | 12 contas de energia | + chuveiro com gerador e ATS | + chuveiro na bateria (referência) |
 |---|---|---|---|---|
@@ -307,11 +307,11 @@ Preços de referência de nov/2026 (Minha Casa Solar, Pix; gerador: Loja do Mec�
 | Autonomia / meses atendidos / vida | 60 h / 12 de 12 / 12 anos | 60 h / 12 de 12 / 12 anos | 60 h / 12 de 12 / 12 anos | 56 h / 12 de 12 / 12 anos |
 | Gerador | — | — | ≥ 12,4 kVA (13 kVA) | — |
 | Transferência | — | — | ATS 80 A 2P + contator 32 A | — |
-| Investimento estimado | R$ 69.896,20 | R$ 69.896,20 | R$ 90.015,64 | R$ 92.400,67 |
+| Investimento estimado | R$ 71.608,61 | R$ 71.608,61 | R$ 91.543,23 | R$ 94.554,08 |
 
 Leituras:
 - **Conta × lista:** a conta acerta a energia (painéis e baterias), mas não a potência: a simultânea estimada sai pela metade e um inversor escolhido por ela (1,5 kW) não aguentaria a casa.
-- **Chuveiro com gerador e ATS:** painéis, baterias e inversor ficam iguais aos da casa sem chuveiro; somam-se o gerador, a ATS e o contator (+ R$ 20,1 mil, gerador a R$ 1.000/kVA). O combustível não entra no investimento.
+- **Chuveiro com gerador e ATS:** painéis, baterias e inversor ficam iguais aos da casa sem chuveiro; somam-se o gerador, a ATS e o contator (+ R$ 19,9 mil, gerador a R$ 1.066/kVA). O combustível não entra no investimento.
 - **Chuveiro na bateria:** dobra o inversor, aumenta 40% o banco e 33% os painéis, e custa mais que a solução com gerador, sem ganhar a fonte reserva para os dias nublados.
 - O gerador é dimensionado por 1,25 × máx(casa + carregador; casa + chuveiro): o limite de corrente de entrada CA do inversor reduz o carregador enquanto o chuveiro funciona.
 

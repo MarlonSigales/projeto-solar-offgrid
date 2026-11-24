@@ -280,19 +280,19 @@
     "mod": {
       "d": "Módulo fotovoltaico 550 W monocristalino",
       "un": "pç",
-      "pu": 850,
+      "pu": 869.99,
       "f": "Clarke Energia, mai/2026: R$ 750–1.500 (550 W)"
     },
     "bat_li": {
       "d": "Bateria LiFePO4 51,2 V 100 Ah 5,12 kWh",
       "un": "pç",
-      "pu": 6989,
+      "pu": 5568.84,
       "f": "Meu Gerador, out/2026 (Dyness DLC5.0C, Pix)"
     },
     "bat_pb": {
       "d": "Bateria estacionária 12 V 220 Ah",
       "un": "pç",
-      "pu": 1559,
+      "pu": 2199.95,
       "f": "Atacadão das Baterias, out/2026 (Freedom DF4100)"
     },
     "bat_agm": {
@@ -304,85 +304,85 @@
     "ctrl": {
       "d": "Controlador de carga MPPT 60 A 12/24/48 V (Voc 250 V)",
       "un": "pç",
-      "pu": 1032,
+      "pu": 902.82,
       "f": "Minha Casa Solar, out/2026 (SRNE MC4860N25)"
     },
     "inv": {
       "d": "Inversor off-grid senoidal pura 5 kW 48 V (carregador)",
       "un": "pç",
-      "pu": 3951,
+      "pu": 3455.0,
       "f": "Meu Gerador, out/2026 (MUST PV30-5048)"
     },
     "estr": {
       "d": "Estrutura de fixação (por módulo)",
       "un": "pç",
-      "pu": 180,
+      "pu": 180.0,
       "f": "estimativa – confirmar cotação"
     },
     "sbox": {
       "d": "String box CC (seccionadora + DPS CC + fusíveis gPV)",
       "un": "pç",
-      "pu": 650,
+      "pu": 650.07,
       "f": "estimativa – confirmar cotação"
     },
     "fusbat": {
       "d": "Fusível NH/classe T + base para banco de baterias",
       "un": "cj",
-      "pu": 350,
+      "pu": 168.18,
       "f": "estimativa – confirmar cotação"
     },
     "seccc": {
       "d": "Seccionadora CC de bateria (chave rotativa)",
       "un": "pç",
-      "pu": 280,
+      "pu": 185.99,
       "f": "estimativa – confirmar cotação"
     },
     "disjcc": {
       "d": "Disjuntor CC 2P (controlador/inversor)",
       "un": "pç",
-      "pu": 120,
+      "pu": 134.99,
       "f": "estimativa – confirmar cotação"
     },
     "barra": {
       "d": "Barramento CC (+/−) isolado com tampa",
       "un": "cj",
-      "pu": 260,
+      "pu": 182.88,
       "f": "estimativa – confirmar cotação"
     },
     "shunt": {
       "d": "Monitor de bateria com shunt",
       "un": "pç",
-      "pu": 450,
+      "pu": 1033.0,
       "f": "estimativa – confirmar cotação"
     },
     "qdca": {
       "d": "Quadro CA: disjuntores, DR 30 mA, DPS CA, barramentos",
       "un": "cj",
-      "pu": 750,
+      "pu": 503.07,
       "f": "estimativa – confirmar cotação"
     },
     "ats": {
       "d": "Chave de transferência automática (ATS) com intertravamento",
       "un": "pç",
-      "pu": 1200,
+      "pu": 341.53,
       "f": "estimativa – confirmar cotação"
     },
     "rev": {
       "d": "Chave reversora manual 1-0-2 com intertravamento",
       "un": "pç",
-      "pu": 420,
+      "pu": 131.14,
       "f": "estimativa – confirmar cotação"
     },
     "cabo_fv": {
       "d": "Cabo solar 1,8 kV CC (preço por m·mm²)",
       "un": "m·mm²",
-      "pu": 1.6,
+      "pu": 1.36,
       "f": "estimativa – confirmar cotação"
     },
     "cabo_bat": {
       "d": "Cabo flexível 1 kV para bateria (preço por m·mm²)",
       "un": "m·mm²",
-      "pu": 1.4,
+      "pu": 1.06,
       "f": "estimativa – confirmar cotação"
     },
     "cabo_ca": {
@@ -394,13 +394,13 @@
     "mc4": {
       "d": "Conectores MC4 (par)",
       "un": "par",
-      "pu": 18,
+      "pu": 10.06,
       "f": "estimativa – confirmar cotação"
     },
     "terra": {
       "d": "Aterramento: haste 5/8\" × 2,4 m, cabo 16 mm², conexões",
       "un": "cj",
-      "pu": 380,
+      "pu": 375.2,
       "f": "estimativa – confirmar cotação"
     },
     "abrigo": {
