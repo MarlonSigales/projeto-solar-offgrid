@@ -137,6 +137,45 @@ function exemplo() {
   return s;
 }
 
+/* exemplos residenciais: a MESMA casa, uma pela lista de eletrodomésticos e outra pelas 12 contas do ano,
+   para comparar os dois métodos de entrada (irradiação ilustrativa da região de Pelotas: consultar o SunData) */
+const CASA_CARGAS = [
+  { nat: "comp", nome: "Geladeira frost-free 375 L", tipo: "CA", q: 1, w: 150, h: 10, fs: 1, kp: 5, crit: 1 },
+  { nat: "comp", nome: "Freezer horizontal 300 L", tipo: "CA", q: 1, w: 130, h: 9, fs: 1, kp: 5, crit: 1 },
+  { nat: "ele", nome: "Lâmpadas LED 9 W", tipo: "CA", q: 10, w: 9, h: 5, fs: 0.6, kp: 1, crit: 1 },
+  { nat: "ele", nome: "TV LED 43\"", tipo: "CA", q: 1, w: 90, h: 5, fs: 1, kp: 1, crit: 0 },
+  { nat: "ele", nome: "Roteador e modem de internet rural", tipo: "CA", q: 1, w: 15, h: 24, fs: 1, kp: 1, crit: 1 },
+  { nat: "ele", nome: "Notebook", tipo: "CA", q: 1, w: 65, h: 4, fs: 1, kp: 1, crit: 0 },
+  { nat: "ele", nome: "Carregadores de celular", tipo: "CA", q: 3, w: 10, h: 2, fs: 1, kp: 1, crit: 0 },
+  { nat: "res", nome: "Micro-ondas", tipo: "CA", q: 1, w: 1200, h: 0.25, fs: 1, kp: 1, crit: 0 },
+  { nat: "mot", nome: "Máquina de lavar roupa", tipo: "CA", q: 1, w: 500, h: 1, fs: 0, kp: 6, crit: 0 },
+  { nat: "mot", nome: "Bomba d'água 1/2 cv (poço)", tipo: "CA", q: 1, w: 450, h: 1, fs: 1, kp: 6, crit: 1 },
+  { nat: "res", nome: "Ferro de passar", tipo: "CA", q: 1, w: 1000, h: 0.3, fs: 0, kp: 1, crit: 0 },
+  { nat: "mot", nome: "Liquidificador", tipo: "CA", q: 1, w: 300, h: 0.1, fs: 0, kp: 6, crit: 0 },
+  { nat: "mot", nome: "Ventiladores (só no verão)", tipo: "CA", q: 3, w: 80, h: 6, fs: 1, kp: 6, crit: 0, meses: "dez-mar" }
+];
+/* kWh/mês de cada conta = consumo da lista acima no mês (Wh/dia × dias ÷ 1000), arredondado */
+const CASA_CONTAS = [225, 204, 225, 175, 181, 175, 181, 181, 175, 181, 175, 225];
+function exemploCasa(entrada) {
+  const s = novo();
+  s.exemplo = true; s.iniciado = true;
+  s.id = { cliente: "Casa Exemplo (dados fictícios)", obra: entrada === "conta" ? "Casa rural isolada — consumo pelas 12 contas de energia do ano" : "Casa rural isolada — consumo pela lista de eletrodomésticos", local: "Interior, sem rede", municipio: "Pelotas/RS", rt: "Turma 2026.2", crea: "", data: new Date().toISOString().slice(0, 10) };
+  s.local.lat = -31.6; s.local.lon = -52.45;
+  s.local.fonte = "Exemplo de aula (irradiação horizontal ilustrativa; planos inclinados calculados pela ferramenta)";
+  s.local.estacao = "Exemplo – região de Pelotas"; s.local.municipio = "Pelotas, RS"; s.local.dist = "—";
+  s.local.rows = linhasInclinadas([6.40, 5.80, 4.90, 3.80, 2.90, 2.40, 2.60, 3.30, 4.10, 5.30, 6.30, 6.70], -31.6); s.local.sel = 3;
+  s.local.obs = "Substitua estes valores pela consulta ao CRESESB/SunData da coordenada da obra. Chuveiro e aquecimento ficam fora (gás ou aquecedor solar térmico): em off-grid não se usa resistência elétrica para aquecer água.";
+  s.temp = { tmin: -2, tmax: 36 };
+  s.backup = { tipo: "nenhum", chave: "manual", pger: 0 };
+  s.crit.vac = 220;
+  if (entrada === "conta") {
+    s.entrada = "conta"; s.cargas = [];
+    /* quem só tem as contas não sabe a demanda: potência simultânea fica em branco (estimada); maior motor = bomba (placa) */
+    s.conta = { meses: CASA_CONTAS.slice(), pior: "", mesPior: 0, amp: 25, fcc: 0, fcrit: 1, psim: "", pmotor: 450, kp: 6 };
+  } else { s.entrada = "lista"; s.cargas = CASA_CARGAS.map(l => Object.assign({}, l)); }
+  return s;
+}
+
 let S = carregar() || novo(), cur = 0;
 try { const e = +localStorage.getItem(LS + ":etapa"); if (e > 0 && e < 13 && (S.cargas.length || S.local.rows?.length || S.iniciado)) cur = e; } catch (e) {}
 function carregar() { try { const t = localStorage.getItem(LS); if (!t) return null; const o = JSON.parse(t); return o && o.formato === FORMATO ? mesclar(o) : null; } catch (e) { return null; } }
@@ -431,7 +470,7 @@ function calcular() {
   let ECA = 0, ECC = 0, Psim = 0, Pinst = 0, Pmot = 0, Pcc = 0;
   R.entrada = S.entrada === "conta" ? "conta" : "lista";
   const mCA = MESES.map(() => 0), mCC = MESES.map(() => 0);
-  R.cargas = R.entrada === "lista" ? S.cargas.map(l => { const e = n(l.q) * n(l.w) * n(l.h), kp = n(l.kp) || NAT[l.nat]?.kp || 1, on = lerMeses(l.meses); on.forEach((v, i) => { if (v) (l.tipo === "CC" ? mCC : mCA)[i] += e; }); if (l.tipo === "CC") { Pcc += n(l.q) * n(l.w); } else { Psim += n(l.q) * n(l.w) * Math.min(1, Math.max(0, n(l.fs) || 1)); Pinst += n(l.q) * n(l.w); if (kp > 1) Pmot = Math.max(Pmot, n(l.w) * (kp - 1)); } return { ...l, e, kp, on, sazonal: !on.every(Boolean) }; }) : [];
+  R.cargas = R.entrada === "lista" ? S.cargas.map(l => { const e = n(l.q) * n(l.w) * n(l.h), kp = n(l.kp) || NAT[l.nat]?.kp || 1, on = lerMeses(l.meses); on.forEach((v, i) => { if (v) (l.tipo === "CC" ? mCC : mCA)[i] += e; }); if (l.tipo === "CC") { Pcc += n(l.q) * n(l.w); } else { Psim += n(l.q) * n(l.w) * Math.min(1, Math.max(0, l.fs === "" || l.fs == null ? 1 : n(l.fs))); Pinst += n(l.q) * n(l.w); if (kp > 1) Pmot = Math.max(Pmot, n(l.w) * (kp - 1)); } return { ...l, e, kp, on, sazonal: !on.every(Boolean) }; }) : [];
   if (R.entrada === "lista") { const tot = mCA.map((v, i) => v + mCC[i]), im = tot.indexOf(Math.max(...tot)); ECA = mCA[im]; ECC = mCC[im]; R.mCA = mCA; R.mCC = mCC; }
   if (R.entrada === "conta") {
     const k = S.conta, dados = (k.meses || []).map(v => n(v));
@@ -1172,7 +1211,9 @@ function boasVindas() {
   <div class="escolhas">
     <button type="button" class="escolha principal" data-inicio="novo"><b>Projetar um sistema novo</b><span>Comece pela identificação da obra.</span></button>
     <button type="button" class="escolha" data-inicio="existente"><b>Analisar um sistema instalado</b><span>Compara o que existe com o necessário.</span></button>
-    <button type="button" class="escolha" data-inicio="exemplo"><b>Ver um exemplo pronto</b><span>Sítio leiteiro com todas as etapas preenchidas.</span></button>
+    <button type="button" class="escolha" data-exemplo="casa-lista"><b>Exemplo: casa (eletrodomésticos)</b><span>Casa rural de 4 pessoas com 13 equipamentos cadastrados um a um.</span></button>
+    <button type="button" class="escolha" data-exemplo="casa-conta"><b>Exemplo: casa (contas do ano)</b><span>A mesma casa informada só pelas 12 contas de energia: compare com o anterior.</span></button>
+    <button type="button" class="escolha" data-exemplo="sitio"><b>Exemplo: sítio leiteiro</b><span>Ordenha, resfriador de leite e bomba, com análise das baterias.</span></button>
     <button type="button" class="escolha" data-inicio="abrir"><b>Abrir projeto salvo</b><span>Arquivo .json exportado por esta ferramenta.</span></button>
   </div></div>`;
 }
@@ -1196,6 +1237,14 @@ function render() {
     `<div class="nav"><button class="btn small" type="button" ${pv >= 0 ? `data-step="${pv}"` : "disabled"}><span aria-hidden="true">←</span> <span class="nav-txt">${pv >= 0 ? STEPS[pv].t : "Anterior"}</span><span class="nav-curto">Anterior</span></button><button class="btn small primary" type="button" ${nx >= 0 ? `data-step="${nx}"` : "disabled"}><span class="nav-txt">${nx >= 0 ? "Próxima: " + STEPS[nx].t : "Última etapa"}</span><span class="nav-curto">${nx >= 0 ? "Próxima" : "Última etapa"}</span> <span aria-hidden="true">→</span></button></div>`;
   $("#summary").innerHTML = resumo();
 }
+function carregarExemplo(k) {
+  const temProjeto = S.cargas.length || S.local.rows?.length || S.id.cliente;
+  if (temProjeto && !S.exemplo && !confirm("Substituir o projeto atual pelo exemplo? Exporte antes se quiser guardar o atual.")) return;
+  S = k === "sitio" ? exemplo() : exemploCasa(k === "casa-conta" ? "conta" : "lista"); persist();
+  document.querySelectorAll("details.menu-ex").forEach(d => d.open = false);
+  irPara(k === "sitio" ? 1 : 2);
+  toast(k === "sitio" ? "Exemplo do sítio leiteiro carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)." : k === "casa-conta" ? "Exemplo da casa pelas contas de energia carregado. Compare com o exemplo pelos eletrodomésticos." : "Exemplo da casa pelos eletrodomésticos carregado. Compare com o exemplo pelas contas de energia.");
+}
 function irPara(i) {
   cur = Math.max(0, Math.min(STEPS.length - 1, i)); try { localStorage.setItem(LS + ":etapa", cur); } catch (e) {}
   $("#steps").classList.remove("aberto"); $("#stepsToggle").setAttribute("aria-expanded", "false");
@@ -1205,7 +1254,7 @@ function irPara(i) {
   $("#stepTitle")?.focus({ preventScroll: true });
 }
 function resumo() {
-  const ok = S.local.rows?.length && S.cargas.length;
+  const ok = temDados();
   return `<div class="card"><h3>Pior caso</h3><div class="big">${ok ? fmt(R.hsp, 2) : "—"}</div><p class="step-hint">kWh/m²·dia em ${ok ? MESES[R.mesCrit] : "—"} (${esc(R.row?.nome || "sem dados")}${R.row ? ", " + R.row.ang + "°" : ""})</p></div>
   <div class="card"><h3>Sistema</h3><dl class="kv">
   <dt>Estudo</dt><dd>${S.modo === "existente" ? "análise existente" : "sistema novo"}</dd>
@@ -1431,9 +1480,9 @@ document.addEventListener("click", e => {
   const b = e.target.closest("button, [data-step]"); if (!b) return;
   if (b.dataset.step != null) { irPara(+b.dataset.step); return; }
   if (b.dataset.nav) { const j = +b.dataset.nav > 0 ? nextAplic(cur) : prevAplic(cur); if (j >= 0) irPara(j); return; }
+  if (b.dataset.exemplo) { carregarExemplo(b.dataset.exemplo); return; }
   if (b.dataset.inicio) { const v = b.dataset.inicio;
     if (v === "abrir") { $("#fileOpen").click(); return; }
-    if (v === "exemplo") { S = exemplo(); persist(); irPara(1); toast("Exemplo carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)."); return; }
     S.modo = v; S.iniciado = true; persist(); render(); if (cur === 0) { const el = document.querySelector('[data-bind="id.cliente"]'); el?.focus(); } else toast(v === "existente" ? "Tipo de estudo: análise de sistema existente." : "Tipo de estudo: sistema novo."); return; }
   if (b.id === "stepsToggle") { const a = $("#steps").classList.toggle("aberto"); b.setAttribute("aria-expanded", a ? "true" : "false"); return; }
   if (b.dataset.del != null) { S.cargas.splice(+b.dataset.del, 1); persist(); render(); return; }
@@ -1455,13 +1504,13 @@ document.addEventListener("click", e => {
     case "batPadrao": S.eq.bat = Object.assign({}, TIPOS[S.crit.bat].unid); break;
     case "btnSave": case "btnSave2": salvarJSON(); return;
     case "btnOpen": $("#fileOpen").click(); return;
-    case "btnSample": if (!S.cargas.length || confirm("Substituir o projeto atual pelo exemplo?")) { S = exemplo(); cur = 1; try { localStorage.setItem(LS + ":etapa", 1); } catch (e) {} toast("Exemplo carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)."); } break;
     case "btnNew": if (confirm("Começar um projeto em branco? Exporte antes se quiser guardar o atual.")) { S = novo(); cur = 0; try { localStorage.setItem(LS + ":etapa", 0); } catch (e) {} } break;
     case "btnPdf": gerarPDF(); return;
     default: return;
   }
   persist(); render();
 });
+document.addEventListener("click", e => { if (!e.target.closest("details.menu-ex")) document.querySelectorAll("details.menu-ex[open]").forEach(d => d.open = false); });
 document.addEventListener("toggle", e => { if (e.target.classList?.contains("guia")) { const f = !e.target.open; if (!!S.guiaFechado !== f) { S.guiaFechado = f; persist(); } } }, true);
 let deb;
 document.addEventListener("change", e => {

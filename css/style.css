@@ -232,3 +232,14 @@ th[data-tip]{cursor:help;text-decoration:underline dotted;text-underline-offset:
 .footer-logos img{height:44px;width:auto}
 @media (max-width:600px){.footer-logos img{height:34px}}
 @media (prefers-reduced-motion:no-preference){.btn,.steps button{transition:background .15s,border-color .15s,color .15s}}
+
+/* menu de exemplos */
+details.menu-ex{position:relative;border:0;background:none;padding:0}
+details.menu-ex>summary{list-style:none}
+details.menu-ex>summary::-webkit-details-marker{display:none}
+details.menu-ex[open]>summary{margin:0;border-color:var(--verde);color:var(--teal)}
+.menu-ex-lista{position:absolute;z-index:60;top:calc(100% + 6px);left:0;min-width:290px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:.35rem;display:flex;flex-direction:column}
+.menu-ex-lista button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;padding:.5rem .65rem;border-radius:6px}
+.menu-ex-lista button:hover,.menu-ex-lista button:focus-visible{background:var(--verde-claro)}
+.menu-ex-lista b{color:var(--teal);font-size:.9rem}
+.menu-ex-lista span{font-size:.78rem;color:var(--muted)}

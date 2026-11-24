@@ -283,6 +283,27 @@ A etapa 12 passa a listar só a **adequação**:
 
 Formato `offgrid-agro`, versão 1. Exemplos: [`offgrid-exemplo-sitio-leiteiro.json`](offgrid-exemplo-sitio-leiteiro.json) (sistema isolado novo) e [`projetos/exemplo-backup-residencial.json`](projetos/exemplo-backup-residencial.json) (backup residencial existente, 24 V chumbo, análise e adequação).
 
+### Exemplos da casa: lista de eletrodomésticos × contas de energia
+
+A mesma casa rural de 4 pessoas (interior de Pelotas/RS, sem rede, sem fonte reserva) em dois arquivos, para comparar os dois métodos de entrada de consumo. Também carregam pelo menu **Carregar exemplo ▾**.
+
+- [`projetos/exemplo-casa-eletrodomesticos.json`](projetos/exemplo-casa-eletrodomesticos.json): 13 equipamentos (geladeira, freezer, 10 lâmpadas LED, TV, roteador, notebook, carregadores, micro-ondas, máquina de lavar, bomba de poço 1/2 cv, ferro, liquidificador e 3 ventiladores só de dezembro a março).
+- [`projetos/exemplo-casa-contas-de-energia.json`](projetos/exemplo-casa-contas-de-energia.json): só as 12 contas (225, 204, 225, 175, 181, 175, 181, 181, 175, 181, 175 e 225 kWh, de jan a dez), iguais ao consumo da lista; a potência simultânea fica em branco (quem só tem a conta não sabe a demanda) e o maior motor é a bomba de 450 W.
+
+| Resultado | Lista de eletrodomésticos | 12 contas de energia |
+|---|---|---|
+| Consumo no mês de maior gasto | 7,27 kWh/dia | 7,29 kWh/dia |
+| Mês de dimensionamento | jan (ventiladores) | jan |
+| Gerador FV | 3,30 kWp (6 × 550 W, 3S×2P) | 3,30 kWp (6 × 550 W, 3S×2P) |
+| Banco de baterias | 48 V · 500 Ah (25,6 kWh), 5 × LiFePO4 | igual |
+| Autonomia / meses atendidos / vida | 60 h / 12 de 12 / 12 anos | 60 h / 12 de 12 / 12 anos |
+| Potência simultânea | **2.424 W** (somada da lista) | **1.214 W** (estimada: consumo ÷ 6 h) |
+| Potência mínima do inversor (1,25 × simultânea) | **3,0 kW** | **1,5 kW** |
+| Surto de partida | 4.924 W | 3.464 W |
+| Investimento (inversor de 5 kW nos dois) | R$ 82.415,52 | R$ 82.415,52 |
+
+A conta acerta a **energia** (painéis e baterias), mas não informa a **potência**: a simultânea estimada sai pela metade da real e um inversor escolhido por ela (1,5 kW) não aguentaria a casa. A lista também mostra quais cargas são sazonais, críticas ou motores. Use a conta para conferir a ordem de grandeza e a lista (ou a demanda medida) para escolher o inversor.
+
 | Chave | Conteúdo |
 |---|---|
 | `id` | cliente, obra, local, município, RT, CREA, data |

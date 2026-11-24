@@ -6,8 +6,8 @@
 <title>Sistema Fotovoltaico Off-grid</title>
 <link rel="icon" type="image/png" href="img/icone-instagri.png">
 <link rel="apple-touch-icon" href="img/icone-instagri-180.png">
-<link rel="stylesheet" href="css/style.css?v=20261123b">
-<link rel="stylesheet" href="css/offgrid.css?v=20261123b">
+<link rel="stylesheet" href="css/style.css?v=20261123c">
+<link rel="stylesheet" href="css/offgrid.css?v=20261123c">
 <script src="js/vendor/pdf-lib.min.js"></script>
 </head>
 <body>
@@ -28,7 +28,11 @@
       <div class="actions">
         <button class="btn small primary" id="btnSave" data-tip="Baixa o projeto em JSON (formato offgrid-agro) para guardar ou enviar. Reabra com Importar projeto." type="button">Exportar projeto (.json)</button>
         <button class="btn small" id="btnOpen" data-tip="Abre um projeto .json exportado por esta ferramenta." type="button">Importar projeto (.json)</button>
-        <button class="btn small ghost" id="btnSample" data-tip="Carrega o sítio leiteiro de exemplo da aula (irradiação ilustrativa: consulte o CRESESB para um projeto real)." type="button">Carregar exemplo (sítio leiteiro)</button>
+        <details class="menu-ex"><summary class="btn small ghost" data-tip="Projetos prontos para estudar ou comparar (irradiação ilustrativa: consulte o CRESESB para um projeto real).">Carregar exemplo ▾</summary><div class="menu-ex-lista">
+          <button type="button" data-exemplo="casa-lista"><b>Casa — lista de eletrodomésticos</b><span>13 equipamentos cadastrados um a um</span></button>
+          <button type="button" data-exemplo="casa-conta"><b>Casa — 12 contas de energia</b><span>a mesma casa, só pelas contas do ano</span></button>
+          <button type="button" data-exemplo="sitio"><b>Sítio leiteiro</b><span>ordenha, resfriador, bomba e análise de baterias</span></button>
+        </div></details>
         <button class="btn small ghost" id="btnNew" data-tip="Apaga o projeto atual da tela e começa em branco (exporte antes se quiser guardar)." type="button">Projeto em branco</button>
         <a class="btn small ghost" href="https://marlonsigales.github.io/app-projetos-de-instalacoes-eletricas-agroindustriais/" target="_blank" rel="noopener" data-tip="Abre o app de Projeto de Instalações Elétricas Agroindustriais (outro aplicativo da mesma série).">Projeto elétrico agroindustrial ↗</a>
         <input type="file" id="fileOpen" accept=".json,application/json">
@@ -56,7 +60,7 @@
   <p>Responsáveis: Marlon Soares Sigales, Ádamo de Souza Araújo e Ricardo Scherer Pohndorf · <strong>Equipe Inova Agro - UFPel - EMBRAPII</strong></p>
 </footer>
 <div class="toast" id="toast" hidden></div>
-<script src="js/logos.js?v=20261123b"></script>
-<script src="js/offgrid.js?v=20261123b"></script>
+<script src="js/logos.js?v=20261123c"></script>
+<script src="js/offgrid.js?v=20261123c"></script>
 </body>
 </html>
