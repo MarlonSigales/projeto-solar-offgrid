@@ -6,8 +6,8 @@
 <title>Sistema Fotovoltaico Off-grid</title>
 <link rel="icon" type="image/png" href="img/icone-instagri.png">
 <link rel="apple-touch-icon" href="img/icone-instagri-180.png">
-<link rel="stylesheet" href="css/style.css?v=20261123">
-<link rel="stylesheet" href="css/offgrid.css?v=20261123">
+<link rel="stylesheet" href="css/style.css?v=20261123b">
+<link rel="stylesheet" href="css/offgrid.css?v=20261123b">
 <script src="js/vendor/pdf-lib.min.js"></script>
 </head>
 <body>
@@ -24,7 +24,7 @@
     <div>
       <div class="eyebrow">UFPel · Engenharia Agrícola · Projeto de Instalações Elétricas Agroindustriais · sistema fotovoltaico isolado</div>
       <h1>Sistema Fotovoltaico Off-grid</h1>
-      <p class="lead">Dimensionamento de sistema isolado pelo <b>pior caso</b>: irradiação do mês mais fraco (CRESESB/SunData), autonomia sem sol, banco de baterias, gerador fotovoltaico, controlador, inversor, transferência, proteções, esquema, materiais e custos. Projeto salvo em JSON e relatório em PDF. Passe o mouse (ou toque) nos campos com <b>?</b> para ver como preencher.</p>
+      <details class="sobre" id="sobre" open><summary>Como funciona</summary><p class="lead">Dimensionamento de sistema isolado pelo <b>pior caso</b>: irradiação do mês mais fraco (CRESESB/SunData), autonomia sem sol, banco de baterias, gerador fotovoltaico, controlador, inversor, transferência, proteções, esquema, materiais e custos. Projeto salvo em JSON e relatório em PDF. Passe o mouse (ou toque) nos campos com <b>?</b> para ver como preencher.</p></details>
       <div class="actions">
         <button class="btn small primary" id="btnSave" data-tip="Baixa o projeto em JSON (formato offgrid-agro) para guardar ou enviar. Reabra com Importar projeto." type="button">Exportar projeto (.json)</button>
         <button class="btn small" id="btnOpen" data-tip="Abre um projeto .json exportado por esta ferramenta." type="button">Importar projeto (.json)</button>
@@ -33,11 +33,12 @@
         <a class="btn small ghost" href="https://marlonsigales.github.io/app-projetos-de-instalacoes-eletricas-agroindustriais/" target="_blank" rel="noopener" data-tip="Abre o app de Projeto de Instalações Elétricas Agroindustriais (outro aplicativo da mesma série).">Projeto elétrico agroindustrial ↗</a>
         <input type="file" id="fileOpen" accept=".json,application/json">
       </div>
+      <p class="salvo" id="salvo" role="status">✓ Salvo automaticamente neste navegador</p>
     </div>
     <div class="stamp" id="stamp"></div>
   </header>
   <div class="layout">
-    <nav class="steps" aria-label="Etapas do projeto off-grid"><span class="steps-titulo">Etapas do projeto</span><ol id="stepList"></ol></nav>
+    <nav class="steps" id="steps" aria-label="Etapas do projeto off-grid"><button type="button" class="steps-toggle" id="stepsToggle" aria-expanded="false" aria-controls="stepsCorpo"></button><div class="steps-corpo" id="stepsCorpo"><span class="steps-titulo">Etapas do projeto</span><div class="steps-prog" id="stepProg"></div><ol id="stepList"></ol></div></nav>
     <main class="sheet" id="sheet"></main>
     <aside class="summary" id="summary"></aside>
   </div>
@@ -55,7 +56,7 @@
   <p>Responsáveis: Marlon Soares Sigales, Ádamo de Souza Araújo e Ricardo Scherer Pohndorf · <strong>Equipe Inova Agro - UFPel - EMBRAPII</strong></p>
 </footer>
 <div class="toast" id="toast" hidden></div>
-<script src="js/logos.js"></script>
-<script src="js/offgrid.js"></script>
+<script src="js/logos.js?v=20261123b"></script>
+<script src="js/offgrid.js?v=20261123b"></script>
 </body>
 </html>

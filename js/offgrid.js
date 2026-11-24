@@ -138,8 +138,9 @@ function exemplo() {
 }
 
 let S = carregar() || novo(), cur = 0;
+try { const e = +localStorage.getItem(LS + ":etapa"); if (e > 0 && e < 13 && (S.cargas.length || S.local.rows?.length || S.iniciado)) cur = e; } catch (e) {}
 function carregar() { try { const t = localStorage.getItem(LS); if (!t) return null; const o = JSON.parse(t); return o && o.formato === FORMATO ? mesclar(o) : null; } catch (e) { return null; } }
-function persist() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
+function persist() { try { localStorage.setItem(LS, JSON.stringify(S)); const el = document.getElementById("salvo"); if (el) el.textContent = "✓ Salvo neste navegador às " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); } catch (e) {} }
 function mesclar(o) { const b = novo(); const m = (a, c) => { for (const k in c) { if (c[k] && typeof c[k] === "object" && !Array.isArray(c[k]) && a[k] && typeof a[k] === "object") m(a[k], c[k]); else a[k] = c[k]; } return a; }; return m(b, o); }
 
 /* --------- utilidades --------- */
@@ -1095,20 +1096,51 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") esconderTip(
 window.addEventListener("scroll", esconderTip, { passive: true, capture: true });
 
 const STEPS = [
-  { k: "id", t: "Identificação", s: "Cliente, obra, RT" },
-  { k: "irr", t: "Local e irradiação", s: "CRESESB · pior caso" },
-  { k: "carg", t: "Cargas", s: "Consumo diário e picos" },
-  { k: "crit", t: "Critérios e equipamentos", s: "Autonomia, DoD, catálogos" },
-  { k: "ex", t: "Sistema existente", s: "Análise e adequação" },
-  { k: "bat", t: "Banco de baterias", s: "Autonomia, vida, picos, BMS" },
-  { k: "sta", t: "Estado da bateria", s: "SOC, SOH, SoE, SoP, SoB, CCA" },
-  { k: "fv", t: "Gerador FV e controlador", s: "Módulos, strings, MPPT" },
-  { k: "inv", t: "Inversor e transferência", s: "Potência, surto, ATS" },
-  { k: "prot", t: "Proteções e barramentos", s: "CC, CA, cabos, terra" },
-  { k: "esq", t: "Esquema elétrico", s: "Unifilar" },
-  { k: "cus", t: "Materiais e custos", s: "Lista, mão de obra, BDI" },
-  { k: "fim", t: "Relatório", s: "PDF e JSON" }
+  { k: "id", g: "ent", t: "Identificação", s: "Cliente, obra, RT" },
+  { k: "irr", g: "ent", t: "Local e irradiação", s: "CRESESB · pior caso" },
+  { k: "carg", g: "ent", t: "Cargas", s: "Consumo diário e picos" },
+  { k: "crit", g: "ent", t: "Critérios e equipamentos", s: "Autonomia, DoD, catálogos" },
+  { k: "ex", g: "ent", so: true, t: "Sistema existente", s: "Análise e adequação" },
+  { k: "bat", g: "dim", t: "Banco de baterias", s: "Autonomia, vida, picos, BMS" },
+  { k: "sta", g: "dim", so: true, t: "Estado da bateria", s: "SOC, SOH, SoE, SoP, SoB, CCA" },
+  { k: "fv", g: "dim", t: "Gerador FV e controlador", s: "Módulos, strings, MPPT" },
+  { k: "inv", g: "dim", t: "Inversor e transferência", s: "Potência, surto, ATS" },
+  { k: "prot", g: "dim", t: "Proteções e barramentos", s: "CC, CA, cabos, terra" },
+  { k: "esq", g: "res", t: "Esquema elétrico", s: "Unifilar" },
+  { k: "cus", g: "res", t: "Materiais e custos", s: "Lista, mão de obra, BDI" },
+  { k: "fim", g: "res", t: "Relatório", s: "PDF e JSON" }
 ];
+const GRUPOS = { ent: "1 · Dados de entrada", dim: "2 · Dimensionamento (automático)", res: "3 · Resultados" };
+/* etapas marcadas com "so" só se aplicam à análise de sistema existente */
+const aplic = i => !STEPS[i].so || S.modo === "existente";
+const prevAplic = i => { for (let j = i - 1; j >= 0; j--) if (aplic(j)) return j; return -1; };
+const nextAplic = i => { for (let j = i + 1; j < STEPS.length; j++) if (aplic(j)) return j; return -1; };
+const temDados = () => !!(S.local.rows?.length && (R.ECA + R.ECC) > 0);
+/* o que fazer em cada etapa (guia curto para quem nunca usou) */
+const GUIA = {
+  id: ["Preencha <b>cliente</b> e <b>obra</b>: vão para a capa do relatório.", "Escolha o <b>tipo de estudo</b>: sistema novo ou análise de um sistema já instalado.", "Os outros campos são opcionais."],
+  irr: ["Informe a <b>coordenada da obra</b> ou toque em <b>Usar localização atual</b> estando no local.", "Busque a irradiação: <b>Buscar no CRESESB</b>, <b>Alternativa: NASA POWER</b> ou cole a tabela do SunData.", "Deixe marcada a linha <b>“Maior mínimo mensal”</b> (pior caso).", "Telhado e temperaturas são opcionais."],
+  carg: ["Escolha como informar o consumo: <b>lista de equipamentos</b> ou <b>conta de energia</b>.", "Na lista, clique em <b>+ Equipamento</b> e preencha potência (W) e horas de uso por dia; indique se é motor ou compressor.", "Confira abaixo o consumo diário e o mês que dimensiona o sistema."],
+  crit: ["Escolha a <b>tecnologia da bateria</b> e as <b>horas de autonomia</b> sem sol.", "Os demais valores já vêm com padrões usuais; troque pelos dados de catálogo dos equipamentos escolhidos, se tiver.", "Na dúvida, avance: dá para voltar e ajustar depois."],
+  ex: ["Informe o que está instalado (quantidades, seções de cabo e proteções).", "A tabela mostra o que atende e o que precisa ser adequado."],
+  bat: ["Etapa calculada: confira o banco (baterias em série e em paralelo, autonomia e vida útil).", "Se aparecer alerta, volte às etapas 03 (cargas) ou 04 (critérios) para ajustar."],
+  sta: ["Digite as medições de campo das baterias instaladas ou cole a planilha do analisador.", "Deixe em branco o que não foi medido."],
+  fv: ["Etapa calculada: confira o número de módulos, a ligação em série e paralelo e os controladores.", "Verifique se os 12 meses do ano são atendidos."],
+  inv: ["Confira a potência do inversor e se ele suporta a partida dos motores.", "Escolha a fonte reserva (gerador, rede ou nenhuma) e o tipo de chave de transferência."],
+  prot: ["Confira cabos, fusíveis, disjuntores e DPS de cada trecho.", "Ajuste os comprimentos dos cabos para as distâncias reais da obra."],
+  esq: ["Confira o diagrama unifilar: ele vai para o relatório PDF."],
+  cus: ["Confira a lista de materiais.", "Troque os preços de referência pela sua cotação e ajuste mão de obra e BDI."],
+  fim: ["Clique em <b>Gerar relatório PDF</b>.", "Exporte o projeto (.json) para continuar em outro computador ou enviar a alguém."]
+};
+/* o que falta para concluir a etapa: [texto, ok] */
+function pendEtapa(k) {
+  switch (k) {
+    case "id": return [["Cliente informado", !!S.id.cliente], ["Obra/finalidade informada", !!S.id.obra]];
+    case "irr": return [["Coordenada da obra", !!(n(S.local.lat) && n(S.local.lon))], ["Irradiação carregada", !!S.local.rows?.length], ["Linha “Maior mínimo mensal” selecionada", R.row?.nome === "Maior mínimo mensal"]];
+    case "carg": return R.entrada === "conta" ? [["Consumo da conta de energia informado", (R.ECA + R.ECC) > 0]] : [["Pelo menos um equipamento cadastrado", S.cargas.length > 0]];
+    default: return [];
+  }
+}
 let R = calcular();
 function fld(path, label, { type = "number", step = "any", opts = null, hint = "", ph = "" } = {}) {
   const v = getP(path);
@@ -1125,21 +1157,52 @@ function stepStatus(k) {
   switch (k) {
     case "id": return S.id.cliente && S.id.obra ? "done" : (S.id.cliente || S.id.obra ? "part" : "");
     case "irr": return S.local.rows?.length ? (R.row?.nome === "Maior mínimo mensal" ? "done" : "part") : "";
-    case "carg": return S.cargas.length ? "done" : "";
+    case "carg": return (R.ECA + R.ECC) > 0 ? "done" : "";
     case "crit": return "done";
     case "sta": return R.est?.tem ? "done" : "";
     case "ex": return S.modo === "existente" ? (R.cmp?.some(x => !x[3]) ? "part" : "done") : "";
-    case "bat": case "fv": case "inv": case "prot": case "esq": case "cus": return S.local.rows?.length && S.cargas.length ? (R.avisos.length ? "part" : "done") : "";
+    case "bat": case "fv": case "inv": case "prot": case "esq": case "cus": return temDados() ? (R.avisos.length ? "part" : "done") : "";
     default: return "";
   }
 }
+function boasVindas() {
+  return `<div class="boasvindas"><h3>Como usar</h3>
+  <ol class="fases"><li><b>Dados de entrada</b><span>local, irradiação solar e consumo</span></li><li><b>Dimensionamento</b><span>baterias, painéis, inversor e proteções: calculados sozinhos</span></li><li><b>Resultados</b><span>esquema, materiais, custos e relatório PDF</span></li></ol>
+  <p class="step-hint">Siga as etapas na ordem com o botão <b>Próxima</b>. Passe o mouse (ou toque) nos campos com <b>?</b> para ver como preencher. O projeto fica salvo neste navegador.</p>
+  <div class="escolhas">
+    <button type="button" class="escolha principal" data-inicio="novo"><b>Projetar um sistema novo</b><span>Comece pela identificação da obra.</span></button>
+    <button type="button" class="escolha" data-inicio="existente"><b>Analisar um sistema instalado</b><span>Compara o que existe com o necessário.</span></button>
+    <button type="button" class="escolha" data-inicio="exemplo"><b>Ver um exemplo pronto</b><span>Sítio leiteiro com todas as etapas preenchidas.</span></button>
+    <button type="button" class="escolha" data-inicio="abrir"><b>Abrir projeto salvo</b><span>Arquivo .json exportado por esta ferramenta.</span></button>
+  </div></div>`;
+}
 function render() {
   R = calcular();
-  $("#stepList").innerHTML = STEPS.map((s, i) => `<li><button type="button" data-step="${i}" ${i === cur ? 'aria-current="step"' : ""}><span class="n">${String(i + 1).padStart(2, "0")}</span><span class="l">${s.t}<small>${s.s}</small></span><span class="d ${stepStatus(s.k)}" aria-hidden="true"></span></button></li>`).join("");
+  const st = STEPS[cur], nn = i => String(i + 1).padStart(2, "0");
+  const apl = STEPS.map((x, i) => i).filter(aplic), feitas = apl.filter(i => stepStatus(STEPS[i].k) === "done").length;
+  let g0 = "";
+  $("#stepList").innerHTML = STEPS.map((s, i) => { const h = s.g !== g0 ? `<li class="steps-grupo">${GRUPOS[s.g]}</li>` : ""; g0 = s.g;
+    return h + `<li><button type="button" data-step="${i}" ${i === cur ? 'aria-current="step"' : ""} class="${aplic(i) ? "" : "na"}"><span class="n">${nn(i)}</span><span class="l">${s.t}<small>${aplic(i) ? s.s : "só na análise de sistema existente"}</small></span><span class="d ${aplic(i) ? stepStatus(s.k) : ""}" aria-hidden="true"></span></button></li>`; }).join("");
+  $("#stepProg").innerHTML = `<div class="steps-prog-txt">${feitas} de ${apl.length} etapas concluídas</div><div class="progress"><div style="width:${Math.round(100 * feitas / apl.length)}%"></div></div>`;
+  $("#stepsToggle").innerHTML = `<span class="n">${nn(cur)}</span><span class="l">${st.t}<small>Etapa ${nn(cur)} de ${STEPS.length} · ${feitas} de ${apl.length} concluídas · toque para ver todas</small></span><span class="seta" aria-hidden="true">▾</span>`;
   $("#stamp").innerHTML = [["Cliente", S.id.cliente || "—"], ["Obra", S.id.obra || "—"], ["Local", S.id.municipio || "—"], ["Data", S.id.data]].map(([a, b]) => `<div>${a}</div><div>${esc(b)}</div>`).join("");
-  $("#sheet").innerHTML = `<div class="sheet-head"><h2>${STEPS[cur].t}</h2><span class="tag">Etapa ${String(cur + 1).padStart(2, "0")} de ${STEPS.length}</span></div>` + VIEWS[STEPS[cur].k]() +
-    `<div class="nav"><button class="btn small" type="button" data-nav="-1" ${cur === 0 ? "disabled" : ""}>← Anterior</button><button class="btn small primary" type="button" data-nav="1" ${cur === STEPS.length - 1 ? "disabled" : ""}>Próxima →</button></div>`;
+  const guia = GUIA[st.k] ? `<details class="guia" ${S.guiaFechado ? "" : "open"}><summary>O que fazer nesta etapa</summary><ul>${GUIA[st.k].map(x => `<li>${x}</li>`).join("")}</ul></details>` : "";
+  const semDados = st.g !== "ent" && st.k !== "sta" && !temDados() ? `<div class="note warn faltam"><b>Faltam dados de entrada.</b> Os resultados desta etapa aparecem depois que você informar a irradiação e o consumo.<div class="actions">${!S.local.rows?.length ? `<button class="btn small primary" type="button" data-step="1">Ir para 02 · Local e irradiação</button>` : ""}${!((R.ECA + R.ECC) > 0) ? `<button class="btn small primary" type="button" data-step="2">Ir para 03 · Cargas</button>` : ""}</div></div>` : "";
+  const P = pendEtapa(st.k), falta = P.filter(x => !x[1]);
+  const pend = P.length ? (falta.length ? `<div class="pend-etapa"><b>Para concluir esta etapa:</b><ul class="pend">${P.map(([t, b]) => `<li class="${b ? "ok" : ""}">${t}</li>`).join("")}</ul></div>` : `<p class="note ok">✓ Etapa concluída. Siga para a próxima.</p>`) : "";
+  const pv = prevAplic(cur), nx = nextAplic(cur);
+  $("#sheet").innerHTML = `<div class="sheet-head"><div><span class="fase">${GRUPOS[st.g]}</span><h2 id="stepTitle" tabindex="-1">${st.t}</h2></div><span class="tag">Etapa ${nn(cur)} de ${STEPS.length}</span></div>` + guia + semDados +
+    (st.k === "id" && !S.iniciado && !S.cargas.length && !S.local.rows?.length ? boasVindas() : "") + VIEWS[st.k]() + pend +
+    `<div class="nav"><button class="btn small" type="button" ${pv >= 0 ? `data-step="${pv}"` : "disabled"}><span aria-hidden="true">←</span> <span class="nav-txt">${pv >= 0 ? STEPS[pv].t : "Anterior"}</span><span class="nav-curto">Anterior</span></button><button class="btn small primary" type="button" ${nx >= 0 ? `data-step="${nx}"` : "disabled"}><span class="nav-txt">${nx >= 0 ? "Próxima: " + STEPS[nx].t : "Última etapa"}</span><span class="nav-curto">${nx >= 0 ? "Próxima" : "Última etapa"}</span> <span aria-hidden="true">→</span></button></div>`;
   $("#summary").innerHTML = resumo();
+}
+function irPara(i) {
+  cur = Math.max(0, Math.min(STEPS.length - 1, i)); try { localStorage.setItem(LS + ":etapa", cur); } catch (e) {}
+  $("#steps").classList.remove("aberto"); $("#stepsToggle").setAttribute("aria-expanded", "false");
+  render();
+  const y = $(".layout").getBoundingClientRect().top + window.scrollY - 70;
+  window.scrollTo({ top: Math.max(0, y) });
+  $("#stepTitle")?.focus({ preventScroll: true });
 }
 function resumo() {
   const ok = S.local.rows?.length && S.cargas.length;
@@ -1159,7 +1222,7 @@ function resumo() {
   <dt>Controlador</dt><dd>${ok ? R.nCtrl + "× " + S.eq.ctrl.imax + " A" : "—"}</dd>
   <dt>Inversor</dt><dd>${ok ? R.invN + "× " + fmt(n(S.eq.inv.p) / 1000, 1) + " kW" : "—"}</dd>
   <dt>Investimento</dt><dd>${ok ? brl(R.custo.total) : "—"}</dd></dl></div>
-  <div class="card"><h3>Pendências</h3><ul class="pend">${[["Coordenada da obra", n(S.local.lat) && n(S.local.lon)], ["Irradiação do CRESESB", /CRESESB/.test(S.local.fonte)], ["Linha “Maior mínimo mensal”", R.row?.nome === "Maior mínimo mensal"], ["Cargas cadastradas", S.cargas.length > 0], ["Sem alertas de cálculo", !R.avisos.length]].map(([t, b]) => `<li class="${b ? "ok" : ""}">${t}</li>`).join("")}</ul></div>`;
+  <div class="card"><h3>Pendências</h3><ul class="pend">${[["Coordenada da obra", n(S.local.lat) && n(S.local.lon), 1], ["Irradiação do CRESESB", /CRESESB/.test(S.local.fonte), 1], ["Linha “Maior mínimo mensal”", R.row?.nome === "Maior mínimo mensal", 1], ["Consumo informado", (R.ECA + R.ECC) > 0, 2], ["Sem alertas de cálculo", !R.avisos.length, null]].map(([t, b, k]) => `<li class="${b ? "ok" : ""}">${!b && k != null ? `<button type="button" class="link" data-step="${k}" title="Ir para a etapa ${String(k + 1).padStart(2, "0")}">${t} →</button>` : t}</li>`).join("")}</ul></div>`;
 }
 const VIEWS = {
   id: () => `<p class="intro">Dados que vão para o carimbo e para a capa do relatório.</p><div class="grid">${fld("id.cliente", "Cliente / proprietário", { type: "text" })}${fld("id.obra", "Obra / finalidade", { type: "text" })}${fld("id.local", "Localidade", { type: "text" })}${fld("id.municipio", "Município/UF", { type: "text" })}${fld("id.rt", "Responsável técnico", { type: "text" })}${fld("id.crea", "CREA/CFT", { type: "text" })}${fld("id.data", "Data", { type: "date" })}${fld("modo", "Tipo de estudo", { opts: [["novo", "Dimensionar sistema novo"], ["existente", "Analisar sistema existente"]] })}</div>
@@ -1238,7 +1301,7 @@ Mês de dimensionamento = máx(E_bat,mês / HSP_mês) → ${MESES[R.mesDim]}: ${
     <div class="block"><h3>Bateria (unidade)</h3><div class="grid">${fld("eq.bat.nome", "Modelo", { type: "text" })}${fld("eq.bat.v", "Tensão nominal (V)", { step: "0.1" })}${fld("eq.bat.ah", "Capacidade (Ah, C20/C10)")}${fld("eq.bat.ri", "Resistência interna (mΩ)", { step: "0.1", hint: "catálogo ou medida com a bateria nova" })}${fld("eq.bat.imax", "Corrente máx. contínua de descarga (A)")}${fld("eq.bat.ipico", "Corrente de pico (A)", { hint: "limite do BMS/fabricante" })}${fld("eq.bat.tpico", "Duração do pico (s)", { step: "0.5" })}${fld("eq.bat.cca", "CCA (A, só chumbo; 0 = não informado)", { hint: "30 s a −18 °C até 7,2 V (12 V)" })}${S.crit.bat === "li" ? fld("eq.bat.bms", "BMS", { opts: [["integrado", "Integrado no módulo (rack)"], ["externo", "Externo (células avulsas)"]] }) : ""}</div><div class="actions"><button class="btn small ghost" type="button" id="batPadrao" data-tip="Repõe a bateria de referência da tecnologia escolhida (modelo, tensão, Ah, resistência e limites).">Usar bateria padrão desta tecnologia</button></div></div>
     <div class="block"><h3>Controlador de carga MPPT</h3><div class="grid">${fld("eq.ctrl.nome", "Modelo", { type: "text" })}${fld("eq.ctrl.imax", "Corrente máx. de carga (A)")}${fld("eq.ctrl.vocmax", "Voc máx. de entrada (V)")}${fld("eq.ctrl.p48", "Potência FV máx. em 48 V (W)", { hint: "proporcional à tensão do banco" })}</div></div>
     <div class="block"><h3>Inversor off-grid</h3><div class="grid">${fld("eq.inv.nome", "Modelo", { type: "text" })}${fld("eq.inv.p", "Potência contínua (W)")}${fld("eq.inv.surto", "Fator de surto (× P, ~5 s)", { step: "0.1" })}${fld("eq.inv.eta", "Rendimento", { step: "0.01" })}${fld("eq.inv.carr", "Carregador CA (A)", { hint: "recarga pelo gerador" })}${fld("eq.inv.vcorte", "Corte por subtensão (V; 0 = automático)", { step: "0.1", hint: `automático: ${fmt(R.Vnom * R.T.vCorte, 1)} V` })}</div></div>`; },
-  ex: () => { if (S.modo !== "existente") return `<p class="note">Esta etapa é usada para <b>analisar um sistema já instalado</b>. Mude o “Tipo de estudo” na etapa 01 para “Analisar sistema existente”.</p>`;
+  ex: () => { if (S.modo !== "existente") return `<p class="note">Esta etapa é usada para <b>analisar um sistema já instalado</b>. Mude o “Tipo de estudo” na etapa 01 para “Analisar sistema existente”.</p><div class="actions"><button class="btn small" type="button" data-inicio="existente">Mudar para análise de sistema existente</button></div>`;
     const C = R.cmp || [], ruins = C.filter(x => !x[3]);
     return `<p class="intro">Informe o que está instalado. Campos em branco usam o valor dimensionado. Cargas (etapa 03), local (02) e catálogos (04) devem descrever o sistema real.</p>
     <div class="block"><h3>Instalado</h3><div class="grid">${fld("exist.ns", "Módulos em série por string", { step: "1", hint: `dimensionado: ${R.NsDim}` })}${fld("exist.nstr", "Strings em paralelo", { step: "1", hint: `dimensionado: ${R.NstrDim}` })}${fld("exist.bns", "Baterias em série", { step: "1", hint: `dimensionado: ${R.bNsDim}` })}${fld("exist.bnp", "Fileiras de baterias em paralelo", { step: "1", hint: `dimensionado: ${R.bNpDim}` })}${fld("exist.nctrl", "Controladores", { step: "1", hint: `dimensionado: ${R.nCtrlDim}` })}${fld("exist.ninv", "Inversores", { step: "1", hint: `dimensionado: ${R.invNDim}` })}${fld("exist.sfv", "Cabo das strings (mm²)", { opts: [["", "—"], ...SEC.map(x => [String(x), x + " mm²"])] })}${fld("exist.sctrl", "Cabo controlador → barramento (mm²)", { opts: [["", "—"], ...SEC.map(x => [String(x), x + " mm²"])] })}${fld("exist.sinv", "Cabo inversor → barramento (mm²)", { opts: [["", "—"], ...SEC.map(x => [String(x), x + " mm²"])] })}${fld("exist.sbat", "Cabo do banco (mm²)", { opts: [["", "—"], ...SEC.map(x => [String(x), x + " mm²"])] })}${fld("exist.sca", "Cabo inversor → quadro CA (mm²)", { opts: [["", "—"], ...SEC.map(x => [String(x), x + " mm²"])] })}${fld("exist.fusbat", "Fusível do banco (A)", { step: "1" })}${fld("exist.djfv", "Disjuntor arranjo FV → controlador (A)", { step: "1" })}${fld("exist.protCtrl", "Proteção controlador → bateria", { opts: [["", "—"], ["sim", "Sim (disjuntor/fusível)"], ["nao", "Não há"]] })}${fld("exist.protInv", "Proteção bateria → inversor", { opts: [["", "—"], ["sim", "Sim (disjuntor/fusível)"], ["nao", "Não há"]] })}${fld("exist.djsaida", "Disjuntor de saída CA do inversor (A)", { step: "1" })}${fld("exist.barra", "Barramento CC instalado (mm²)", { step: "0.1", hint: "1″ × 1/8″ = 25,4 × 3,175 = 80,6 mm²" })}</div></div>
@@ -1366,8 +1429,13 @@ Chave: In ≥ 1,25 × máx(I_inv ${fmt(R.iAc)} A; I_gerador ${fmt(R.iGer)} A) = 
 /* --------- eventos --------- */
 document.addEventListener("click", e => {
   const b = e.target.closest("button, [data-step]"); if (!b) return;
-  if (b.dataset.step != null) { cur = +b.dataset.step; render(); window.scrollTo({ top: 0 }); return; }
-  if (b.dataset.nav) { cur = Math.max(0, Math.min(STEPS.length - 1, cur + +b.dataset.nav)); render(); window.scrollTo({ top: 0 }); return; }
+  if (b.dataset.step != null) { irPara(+b.dataset.step); return; }
+  if (b.dataset.nav) { const j = +b.dataset.nav > 0 ? nextAplic(cur) : prevAplic(cur); if (j >= 0) irPara(j); return; }
+  if (b.dataset.inicio) { const v = b.dataset.inicio;
+    if (v === "abrir") { $("#fileOpen").click(); return; }
+    if (v === "exemplo") { S = exemplo(); persist(); irPara(1); toast("Exemplo carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)."); return; }
+    S.modo = v; S.iniciado = true; persist(); render(); if (cur === 0) { const el = document.querySelector('[data-bind="id.cliente"]'); el?.focus(); } else toast(v === "existente" ? "Tipo de estudo: análise de sistema existente." : "Tipo de estudo: sistema novo."); return; }
+  if (b.id === "stepsToggle") { const a = $("#steps").classList.toggle("aberto"); b.setAttribute("aria-expanded", a ? "true" : "false"); return; }
   if (b.dataset.del != null) { S.cargas.splice(+b.dataset.del, 1); persist(); render(); return; }
   if (b.dataset.fdel != null) { S.telhado.faces.splice(+b.dataset.fdel, 1); persist(); render(); return; }
   if (b.dataset.udel != null) { S.analise.splice(+b.dataset.udel, 1); persist(); render(); return; }
@@ -1387,13 +1455,14 @@ document.addEventListener("click", e => {
     case "batPadrao": S.eq.bat = Object.assign({}, TIPOS[S.crit.bat].unid); break;
     case "btnSave": case "btnSave2": salvarJSON(); return;
     case "btnOpen": $("#fileOpen").click(); return;
-    case "btnSample": if (!S.cargas.length || confirm("Substituir o projeto atual pelo exemplo?")) { S = exemplo(); cur = 1; toast("Exemplo carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)."); } break;
-    case "btnNew": if (confirm("Começar um projeto em branco?")) { S = novo(); cur = 0; } break;
+    case "btnSample": if (!S.cargas.length || confirm("Substituir o projeto atual pelo exemplo?")) { S = exemplo(); cur = 1; try { localStorage.setItem(LS + ":etapa", 1); } catch (e) {} toast("Exemplo carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)."); } break;
+    case "btnNew": if (confirm("Começar um projeto em branco? Exporte antes se quiser guardar o atual.")) { S = novo(); cur = 0; try { localStorage.setItem(LS + ":etapa", 0); } catch (e) {} } break;
     case "btnPdf": gerarPDF(); return;
     default: return;
   }
   persist(); render();
 });
+document.addEventListener("toggle", e => { if (e.target.classList?.contains("guia")) { const f = !e.target.open; if (!!S.guiaFechado !== f) { S.guiaFechado = f; persist(); } } }, true);
 let deb;
 document.addEventListener("change", e => {
   const t = e.target;
@@ -1417,7 +1486,7 @@ function salvarJSON() {
 }
 function abrirJSON(f) {
   if (!f) return; const r = new FileReader();
-  r.onload = () => { try { const o = JSON.parse(r.result); if (o.formato !== FORMATO) throw new Error("arquivo não é um projeto off-grid desta ferramenta"); S = mesclar(o); delete S.resultados; persist(); render(); toast("Projeto importado."); } catch (e) { toast("Não foi possível importar: " + e.message); } };
+  r.onload = () => { try { const o = JSON.parse(r.result); if (o.formato !== FORMATO) throw new Error("arquivo não é um projeto off-grid desta ferramenta"); S = mesclar(o); delete S.resultados; S.iniciado = true; persist(); irPara(0); toast("Projeto importado. Confira as etapas na ordem."); } catch (e) { toast("Não foi possível importar: " + e.message); } };
   r.readAsText(f);
 }
 
@@ -1613,3 +1682,4 @@ ${S.backup.tipo === "nenhum" ? "Sem fonte reserva." : `Fonte reserva: ${S.backup
 /* expõe para testes automatizados */
 window.OFFGRID = { calcular: () => calcular(), lerSunData, linhasInclinadas, exemplo, get S() { return S; }, set S(v) { S = v; }, render, gerarPDF };
 render();
+{ const so = document.getElementById("sobre"); if (so && (S.cargas.length || S.local.rows?.length)) so.open = false; }
