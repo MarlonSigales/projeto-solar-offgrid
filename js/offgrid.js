@@ -47,12 +47,12 @@ const IZ = [17.5, 24, 32, 41, 57, 76, 101, 125, 151, 192, 232, 269, 309, 353, 41
 /* --------- preços de referência (out/2026); editáveis --------- */
 function precosPadrao() {
   return {
-    mod: { d: "Módulo fotovoltaico 550 W monocristalino", un: "pç", pu: 850, f: "Clarke Energia, mai/2026: R$ 750–1.500 (550 W)" },
-    bat_li: { d: "Bateria LiFePO4 51,2 V 100 Ah 5,12 kWh", un: "pç", pu: 6989, f: "Meu Gerador, out/2026 (Dyness DLC5.0C, Pix)" },
+    mod: { d: "Módulo fotovoltaico 550 W monocristalino", un: "pç", pu: 692.76, f: "Minha Casa Solar, nov/2026 (Honor 550 W, Pix)" },
+    bat_li: { d: "Bateria LiFePO4 48 V 100 Ah (≈ 5 kWh)", un: "pç", pu: 5321.61, f: "Minha Casa Solar, nov/2026 (Unipower UPLFP48-100 3U, Pix)" },
     bat_pb: { d: "Bateria estacionária 12 V 220 Ah", un: "pç", pu: 1559, f: "Atacadão das Baterias, out/2026 (Freedom DF4100)" },
     bat_agm: { d: "Bateria VRLA AGM 12 V 200 Ah", un: "pç", pu: 1900, f: "estimativa – confirmar cotação" },
-    ctrl: { d: "Controlador de carga MPPT 60 A 12/24/48 V (Voc 250 V)", un: "pç", pu: 1032, f: "Minha Casa Solar, out/2026 (SRNE MC4860N25)" },
-    inv: { d: "Inversor off-grid senoidal pura 5 kW 48 V (carregador)", un: "pç", pu: 3951, f: "Meu Gerador, out/2026 (MUST PV30-5048)" },
+    ctrl: { d: "Controlador de carga MPPT 60 A 12/24/48 V (Voc 250 V)", un: "pç", pu: 999.08, f: "Minha Casa Solar, nov/2026 (SRNE MC4860N25, Pix)" },
+    inv: { d: "Inversor off-grid senoidal pura 5 kW 48 V (carregador)", un: "pç", pu: 3812.90, f: "Minha Casa Solar, nov/2026 (Must PV30-5048, chinês, Pix)" },
     estr: { d: "Estrutura de fixação (por módulo)", un: "pç", pu: 180, f: "estimativa – confirmar cotação" },
     sbox: { d: "String box CC (seccionadora + DPS CC + fusíveis gPV)", un: "pç", pu: 650, f: "estimativa – confirmar cotação" },
     fusbat: { d: "Fusível NH/classe T + base para banco de baterias", un: "cj", pu: 350, f: "estimativa – confirmar cotação" },
@@ -63,7 +63,7 @@ function precosPadrao() {
     qdca: { d: "Quadro CA: disjuntores, DR 30 mA, DPS CA, barramentos", un: "cj", pu: 750, f: "estimativa – confirmar cotação" },
     ats: { d: "Chave de transferência automática (ATS) com intertravamento", un: "pç", pu: 1200, f: "estimativa – confirmar cotação" },
     rev: { d: "Chave reversora manual 1-0-2 com intertravamento", un: "pç", pu: 420, f: "estimativa – confirmar cotação" },
-    gerador: { d: "Gerador a combustível com partida elétrica (preço por kVA)", un: "kVA", pu: 900, f: "estimativa – confirmar cotação" },
+    gerador: { d: "Gerador a combustível com partida elétrica (preço por kVA)", un: "kVA", pu: 1000, f: "Loja do Mecânico, nov/2026: Toyama gasolina com partida elétrica, 9 kVA R$ 6.549 a 13,5 kVA R$ 16.999" },
     contator: { d: "Contator + disjuntor do circuito só com gerador (comando pela ATS)", un: "cj", pu: 250, f: "estimativa – confirmar cotação" },
     cabo_fv: { d: "Cabo solar 1,8 kV CC (preço por m·mm²)", un: "m·mm²", pu: 1.6, f: "estimativa – confirmar cotação" },
     cabo_bat: { d: "Cabo flexível 1 kV para bateria (preço por m·mm²)", un: "m·mm²", pu: 1.4, f: "estimativa – confirmar cotação" },
