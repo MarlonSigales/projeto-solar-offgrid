@@ -4,11 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sistema Fotovoltaico Off-grid</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/offgrid.css">
+<link rel="icon" type="image/png" href="img/icone-instagri.png">
+<link rel="apple-touch-icon" href="img/icone-instagri-180.png">
+<link rel="stylesheet" href="css/style.css?v=20261123">
+<link rel="stylesheet" href="css/offgrid.css?v=20261123">
 <script src="js/vendor/pdf-lib.min.js"></script>
 </head>
 <body>
+<header class="topbar">
+  <a href="https://marlonsigales.github.io/central-de-aplicativos/" class="topbar-marca" title="Central de Aplicativos">
+    <img src="img/logo-instagri.png" alt="" height="36">
+    <span>Sistema Fotovoltaico Off-grid</span>
+  </a>
+  <span class="topbar-projeto">Engenharia Agrícola · CEng/UFPel · Inova Agro UFPel EMBRAPII</span>
+  <img class="topbar-embrapii" src="img/logo-inovaagro.png" alt="EMBRAPII - Inova Agro - UFPel" height="40">
+</header>
 <div class="wrap">
   <header class="top">
     <div>
@@ -27,12 +37,23 @@
     <div class="stamp" id="stamp"></div>
   </header>
   <div class="layout">
-    <nav class="steps" aria-label="Etapas do projeto off-grid"><ol id="stepList"></ol></nav>
+    <nav class="steps" aria-label="Etapas do projeto off-grid"><span class="steps-titulo">Etapas do projeto</span><ol id="stepList"></ol></nav>
     <main class="sheet" id="sheet"></main>
     <aside class="summary" id="summary"></aside>
   </div>
-  <p class="foot">Irradiação: CRESESB/CEPEL – SunData v3 (irradiação solar diária média mensal, kWh/m²·dia), consultado pelo proxy local <span class="mono">sundata.php</span>; alternativa automática: NASA POWER (climatologia mensal) com transposição para o plano inclinado (modelo isotrópico de Liu-Jordan e fração difusa de Erbs). Normas de referência: ABNT NBR 16690:2019 (arranjos fotovoltaicos), NBR 5410:2004 (baixa tensão), NBR 16274 (documentação e ensaios), NBR 14298 e IEC 62509 (controladores), IEC 62040/IEC 62109 (inversores), NBR 15389 e IEC 62619 (baterias), NBR 5419 (SPDA/DPS). Preços de referência de out/2026 (editáveis na etapa 10). Ferramenta didática: não substitui a verificação do responsável técnico nem os dados de catálogo dos equipamentos escolhidos.<br><b>Software de Apoio a Projetos de Instalações Elétricas Agroindustriais</b> — Laboratório de Instrumentação Agrícola, Engenharia Agrícola, CEng/UFPel. Responsáveis: Marlon Soares Sigales, Ádamo de Souza Araújo e Ricardo Scherer Pohndorf.</p>
+  <p class="foot">Irradiação: CRESESB/CEPEL – SunData v3 (irradiação solar diária média mensal, kWh/m²·dia), consultado pelo proxy local <span class="mono">sundata.php</span>; alternativa automática: NASA POWER (climatologia mensal) com transposição para o plano inclinado (modelo isotrópico de Liu-Jordan e fração difusa de Erbs). Normas de referência: ABNT NBR 16690:2019 (arranjos fotovoltaicos), NBR 5410:2004 (baixa tensão), NBR 16274 (documentação e ensaios), NBR 14298 e IEC 62509 (controladores), IEC 62040/IEC 62109 (inversores), NBR 15389 e IEC 62619 (baterias), NBR 5419 (SPDA/DPS). Preços de referência de out/2026 (editáveis na etapa 10). Ferramenta didática: não substitui a verificação do responsável técnico nem os dados de catálogo dos equipamentos escolhidos.</p>
 </div>
+<footer class="footer">
+  <div class="footer-logos">
+    <img src="img/logo-inovaagro.png" alt="EMBRAPII - Inova Agro - UFPel" height="44">
+    <img src="img/logo-instagri.png" alt="Laboratório de Instrumentação Agrícola - UFPel" height="44">
+    <img src="img/logo-ea.png" alt="Engenharia Agrícola - UFPel" height="44">
+    <img src="img/logo-ceng.png" alt="Centro de Engenharias - UFPel" height="44">
+    <img src="img/logo-ufpel.png" alt="Universidade Federal de Pelotas" height="44">
+  </div>
+  <p><strong>Software de Apoio a Projetos de Instalações Elétricas Agroindustriais</strong> — Laboratório de Instrumentação Agrícola, Engenharia Agrícola, CEng/UFPel</p>
+  <p>Responsáveis: Marlon Soares Sigales, Ádamo de Souza Araújo e Ricardo Scherer Pohndorf · <strong>Equipe Inova Agro - UFPel - EMBRAPII</strong></p>
+</footer>
 <div class="toast" id="toast" hidden></div>
 <script src="js/logos.js"></script>
 <script src="js/offgrid.js"></script>

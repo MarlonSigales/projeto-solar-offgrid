@@ -1435,7 +1435,7 @@ async function gerarPDF() {
     const { PDFDocument, StandardFonts, rgb, degrees } = PDFLib;
     const doc = await PDFDocument.create(); doc.setTitle("Sistema fotovoltaico off-grid — " + (S.id.obra || "")); doc.setAuthor(S.id.rt || ""); doc.setCreator("UFPel – módulo off-grid");
     const F = await doc.embedFont(StandardFonts.Helvetica), FB = await doc.embedFont(StandardFonts.HelveticaBold), FM = await doc.embedFont(StandardFonts.Courier);
-    const INK = rgb(0.09, 0.13, 0.11), MUT = rgb(0.35, 0.42, 0.38), ACC = rgb(0.055, 0.416, 0.306), BG = rgb(0.95, 0.96, 0.95), LN = rgb(0.83, 0.86, 0.84), RED = rgb(0.70, 0.15, 0.12), WARN = rgb(0.6, 0.35, 0);
+    const INK = rgb(0.09, 0.13, 0.11), MUT = rgb(0.35, 0.42, 0.38), ACC = rgb(0.031, 0.325, 0.341), BG = rgb(0.95, 0.96, 0.95), LN = rgb(0.83, 0.86, 0.84), RED = rgb(0.70, 0.15, 0.12), WARN = rgb(0.6, 0.35, 0);
     let pg, W, H, y; const M = 42;
     const wrap = (t, f, sz, mw) => { const out = []; for (const par of pt(t).split("\n")) { let l = ""; for (const w of par.split(" ")) { const tt = l ? l + " " + w : w; if (f.widthOfTextAtSize(tt, sz) > mw && l) { out.push(l); l = w; } else l = tt; } out.push(l); } return out; };
     const foot = () => { pg.drawText(pt(`${S.id.obra || "Sistema off-grid"} · ${S.id.cliente || ""}`), { x: M, y: 22, size: 7.5, font: F, color: MUT }); pg.drawText(pt(`Página ${doc.getPageCount()}`), { x: W - M - 40, y: 22, size: 7.5, font: F, color: MUT }); };
@@ -1463,8 +1463,9 @@ async function gerarPDF() {
     P_(5);
     /* capa */
     newPage();
-    pg.drawRectangle({ x: 0, y: H - 250, width: W, height: 250, color: rgb(0.06, 0.16, 0.12) });
-    pg.drawText(pt("PROJETO DE SISTEMA FOTOVOLTAICO ISOLADO (OFF-GRID)"), { x: M, y: H - 80, size: 11, font: FB, color: rgb(0.96, 0.65, 0.14) });
+    pg.drawRectangle({ x: 0, y: H - 250, width: W, height: 250, color: rgb(0.031, 0.325, 0.341) });
+    pg.drawRectangle({ x: 0, y: H - 256, width: W, height: 6, color: rgb(0.659, 0.882, 0.337) });
+    pg.drawText(pt("PROJETO DE SISTEMA FOTOVOLTAICO ISOLADO (OFF-GRID)"), { x: M, y: H - 80, size: 11, font: FB, color: rgb(0.659, 0.882, 0.337) });
     wrap(S.id.obra || "Sistema off-grid", FB, 24, W - 2 * M).forEach((l, i) => pg.drawText(l, { x: M, y: H - 120 - i * 28, size: 24, font: FB, color: rgb(1, 1, 1) }));
     pg.drawText(pt(S.id.cliente || ""), { x: M, y: H - 200, size: 13, font: F, color: rgb(0.85, 0.9, 0.87) });
     pg.drawText(pt(`${S.id.local || ""} ${S.id.municipio ? "· " + S.id.municipio : ""}`), { x: M, y: H - 220, size: 11, font: F, color: rgb(0.85, 0.9, 0.87) });
@@ -1480,7 +1481,7 @@ async function gerarPDF() {
       ["Transferência", S.backup.tipo === "nenhum" ? "Sem fonte reserva" : `${S.backup.chave === "auto" ? "ATS" : "Reversora manual"} ${R.inChave} A ${R.polos}P — ${S.backup.tipo} ≥ ${fmt(R.sGerRec / 1000, 1)} kVA`],
       [S.modo === "existente" ? "Custo de adequação" : "Investimento estimado", brl(R.custo.total) + (S.modo === "existente" ? ` (${R.cmp.filter(x => !x[3]).length} item(ns) a adequar)` : ` (${fmt(R.indic.rsWp, 2)} R$/Wp)`)]], { size: 9 });
     text(`Responsável técnico: ${S.id.rt || "-"} ${S.id.crea ? "· " + S.id.crea : ""} · Data: ${S.id.data}`, { color: MUT });
-    try { if (typeof LOGOS === "object") { let x = M; for (const k of ["ufpel", "ceng", "ea", "lia"]) { if (!LOGOS[k]) continue; const img = await doc.embedPng(Uint8Array.from(atob(LOGOS[k]), c => c.charCodeAt(0))); const s = 44 / img.height; pg.drawImage(img, { x, y: 50, width: img.width * s, height: 44 }); x += img.width * s + 16; } } } catch (e) {}
+    try { if (typeof LOGOS === "object") { let x = M; for (const k of ["inovaagro", "ufpel", "ceng", "ea", "lia"]) { if (!LOGOS[k]) continue; const img = await doc.embedPng(Uint8Array.from(atob(LOGOS[k]), c => c.charCodeAt(0))); const s = 44 / img.height; pg.drawImage(img, { x, y: 50, width: img.width * s, height: 44 }); x += img.width * s + 16; } } } catch (e) {}
     P_(20);
     /* irradiação */
     h1("1. Recurso solar — pior caso");
