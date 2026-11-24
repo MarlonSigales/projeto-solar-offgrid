@@ -63,6 +63,8 @@ function precosPadrao() {
     qdca: { d: "Quadro CA: disjuntores, DR 30 mA, DPS CA, barramentos", un: "cj", pu: 750, f: "estimativa – confirmar cotação" },
     ats: { d: "Chave de transferência automática (ATS) com intertravamento", un: "pç", pu: 1200, f: "estimativa – confirmar cotação" },
     rev: { d: "Chave reversora manual 1-0-2 com intertravamento", un: "pç", pu: 420, f: "estimativa – confirmar cotação" },
+    gerador: { d: "Gerador a combustível com partida elétrica (preço por kVA)", un: "kVA", pu: 900, f: "estimativa – confirmar cotação" },
+    contator: { d: "Contator + disjuntor do circuito só com gerador (comando pela ATS)", un: "cj", pu: 250, f: "estimativa – confirmar cotação" },
     cabo_fv: { d: "Cabo solar 1,8 kV CC (preço por m·mm²)", un: "m·mm²", pu: 1.6, f: "estimativa – confirmar cotação" },
     cabo_bat: { d: "Cabo flexível 1 kV para bateria (preço por m·mm²)", un: "m·mm²", pu: 1.4, f: "estimativa – confirmar cotação" },
     cabo_ca: { d: "Cabo flexível 750 V/1 kV CA (preço por m·mm²)", un: "m·mm²", pu: 1.1, f: "estimativa – confirmar cotação" },
@@ -97,7 +99,7 @@ function novo() {
       ctrl: { nome: "Controlador MPPT 60 A (Voc 250 V)", imax: 60, vocmax: 250, p48: 3200 },
       inv: { nome: "Inversor off-grid 5 kW 48 V senoidal pura", p: 5000, surto: 2.0, eta: 0.92, carr: 60, vcorte: 0 }
     },
-    backup: { tipo: "gerador", chave: "auto", pger: 0 },
+    backup: { tipo: "gerador", chave: "auto", pger: 0, orc: "nao" },
     cabos: { lfv: 25, lbat: 2, lca: 20, lger: 15, dvfv: 2, dvbat: 1, dvca: 2 },
     estado: { ocv: "", cmed: "", rmed: "", ccamed: "", vmax: "", vmin: "", nivel: "celula", idade: "", ciclos: "", v0: "", v1: "", i1: "" },
     modo: "novo", entrada: "lista",
@@ -159,7 +161,7 @@ const CASA_CONTAS = [225, 204, 225, 175, 181, 175, 181, 181, 175, 181, 175, 225]
 function exemploCasa(entrada) {
   const s = novo();
   s.exemplo = true; s.iniciado = true;
-  s.id = { cliente: "Casa Exemplo (dados fictícios)", obra: entrada === "conta" ? "Casa rural isolada — consumo pelas 12 contas de energia do ano" : "Casa rural isolada — consumo pela lista de eletrodomésticos", local: "Interior, sem rede", municipio: "Pelotas/RS", rt: "Turma 2026.2", crea: "", data: new Date().toISOString().slice(0, 10) };
+  s.id = { cliente: "Casa Exemplo (dados fictícios)", obra: entrada === "conta" ? "Casa rural isolada — consumo pelas 12 contas de energia do ano" : entrada === "gerador" ? "Casa rural isolada — eletrodomésticos + chuveiro elétrico com gerador e ATS" : "Casa rural isolada — consumo pela lista de eletrodomésticos", local: "Interior, sem rede", municipio: "Pelotas/RS", rt: "Turma 2026.2", crea: "", data: new Date().toISOString().slice(0, 10) };
   s.local.lat = -31.6; s.local.lon = -52.45;
   s.local.fonte = "Exemplo de aula (irradiação horizontal ilustrativa; planos inclinados calculados pela ferramenta)";
   s.local.estacao = "Exemplo – região de Pelotas"; s.local.municipio = "Pelotas, RS"; s.local.dist = "—";
@@ -173,6 +175,12 @@ function exemploCasa(entrada) {
     /* quem só tem as contas não sabe a demanda: potência simultânea fica em branco (estimada); maior motor = bomba (placa) */
     s.conta = { meses: CASA_CONTAS.slice(), pior: "", mesPior: 0, amp: 25, fcc: 0, fcrit: 1, psim: "", pmotor: 450, kp: 6 };
   } else { s.entrada = "lista"; s.cargas = CASA_CARGAS.map(l => Object.assign({}, l)); }
+  if (entrada === "gerador") {
+    /* chuveiro de 5,5 kW só com o gerador ligado: 4 banhos de 10 min por dia; a ATS passa a casa para o gerador e um contator libera o chuveiro */
+    s.cargas.push({ nat: "res", nome: "Chuveiro elétrico 5500 W (só com gerador)", tipo: "CA", fonte: "ger", q: 1, w: 5500, h: 0.67, fs: 1, kp: 1, crit: 0 });
+    s.backup = { tipo: "gerador", chave: "auto", pger: 0, orc: "sim" };
+    s.local.obs = "Substitua estes valores pela consulta ao CRESESB/SunData da coordenada da obra. O chuveiro só funciona com o gerador ligado: fica fora da bateria e do inversor.";
+  }
   return s;
 }
 
@@ -470,7 +478,8 @@ function calcular() {
   let ECA = 0, ECC = 0, Psim = 0, Pinst = 0, Pmot = 0, Pcc = 0;
   R.entrada = S.entrada === "conta" ? "conta" : "lista";
   const mCA = MESES.map(() => 0), mCC = MESES.map(() => 0);
-  R.cargas = R.entrada === "lista" ? S.cargas.map(l => { const e = n(l.q) * n(l.w) * n(l.h), kp = n(l.kp) || NAT[l.nat]?.kp || 1, on = lerMeses(l.meses); on.forEach((v, i) => { if (v) (l.tipo === "CC" ? mCC : mCA)[i] += e; }); if (l.tipo === "CC") { Pcc += n(l.q) * n(l.w); } else { Psim += n(l.q) * n(l.w) * Math.min(1, Math.max(0, l.fs === "" || l.fs == null ? 1 : n(l.fs))); Pinst += n(l.q) * n(l.w); if (kp > 1) Pmot = Math.max(Pmot, n(l.w) * (kp - 1)); } return { ...l, e, kp, on, sazonal: !on.every(Boolean) }; }) : [];
+  let Pger = 0, Eger = 0, hGer = 0; /* cargas que só funcionam com o gerador ligado (ex.: chuveiro): fora da bateria e do inversor */
+  R.cargas = R.entrada === "lista" ? S.cargas.map(l => { const e = n(l.q) * n(l.w) * n(l.h), kp = n(l.kp) || NAT[l.nat]?.kp || 1, on = lerMeses(l.meses); if (l.fonte === "ger") { Pger += n(l.q) * n(l.w) * Math.min(1, Math.max(0, l.fs === "" || l.fs == null ? 1 : n(l.fs))); Eger += e; hGer = Math.max(hGer, n(l.h)); return { ...l, e, kp, on, sazonal: !on.every(Boolean), ger: true }; } on.forEach((v, i) => { if (v) (l.tipo === "CC" ? mCC : mCA)[i] += e; }); if (l.tipo === "CC") { Pcc += n(l.q) * n(l.w); } else { Psim += n(l.q) * n(l.w) * Math.min(1, Math.max(0, l.fs === "" || l.fs == null ? 1 : n(l.fs))); Pinst += n(l.q) * n(l.w); if (kp > 1) Pmot = Math.max(Pmot, n(l.w) * (kp - 1)); } return { ...l, e, kp, on, sazonal: !on.every(Boolean) }; }) : [];
   if (R.entrada === "lista") { const tot = mCA.map((v, i) => v + mCC[i]), im = tot.indexOf(Math.max(...tot)); ECA = mCA[im]; ECC = mCC[im]; R.mCA = mCA; R.mCC = mCC; }
   if (R.entrada === "conta") {
     const k = S.conta, dados = (k.meses || []).map(v => n(v));
@@ -486,7 +495,8 @@ function calcular() {
     if (!Ep) R.avisos.push("Entrada pela conta: informe o consumo (kWh) do mês de maior gasto ou os 12 meses da conta.");
     if (R.psimEst) R.avisos.push(`Potência simultânea não informada: estimada em ${fmt0(Psim)} W (consumo diário / 6 h). Informe a demanda real para dimensionar o inversor.`);
   }
-  Object.assign(R, { ECA, ECC, Psim, Pinst, Pcc });
+  Object.assign(R, { ECA, ECC, Psim, Pinst, Pcc, Pger, Eger, hGer });
+  if (Pger > 0 && S.backup.tipo === "nenhum") R.avisos.push(`Há ${fmt0(Pger)} W em cargas “só com gerador”, mas não há fonte reserva: escolha o gerador na etapa 09 ou passe essas cargas para o inversor.`);
   R.surto = Psim + Pmot;
   const Etot = ECA + ECC, kbat = Etot > 0 ? (ECC / c.etaCabo + ECA / (c.etaInv * c.etaCabo)) / Etot : 1 / (c.etaInv * c.etaCabo);
   R.Emes = R.entrada === "conta" ? R.kwhMes.map((v, i) => v * 1000 / DM[i]) : MESES.map((_, i) => R.mCA[i] + R.mCC[i]);
@@ -631,7 +641,8 @@ function calcular() {
   /* transferência e gerador */
   const b = S.backup;
   R.pCarr = Math.min(n(iv.carr) || 60, R.icMax) * Vb * T.vChg / 0.9;
-  R.pGerRec = 1.25 * (Psim + R.pCarr);
+  /* com cargas "só com gerador", o limite de corrente de entrada do inversor reduz o carregador enquanto elas funcionam */
+  R.pGerRec = 1.25 * Math.max(Psim + R.pCarr, Psim + R.Pger);
   R.sGerRec = R.pGerRec / 0.8;
   R.iGer = R.sGerRec / (R.vac * (n(c.fases) === 3 ? Math.sqrt(3) : 1));
   R.iChave = 1.25 * Math.max(R.iAc, b.tipo === "nenhum" ? 0 : R.iGer);
@@ -676,6 +687,7 @@ function calcular() {
   R.cAcTmp = 0;
   R.cAc = cabEx("sca", secao(1.25 * R.iAc, n(S.cabos.lca), R.vac, n(S.cabos.dvca), 2.5), 1.25 * R.iAc, n(S.cabos.lca), R.vac);
   if (R.cAc.iz && R.cAc.iz < R.inDjAc) R.avisos.push(`Cabo de saída CA (${R.cAc.s} mm², Iz ${R.cAc.iz} A) menor que o disjuntor de ${R.inDjAc} A: aumente a seção.`);
+  if (R.Pger > 0) { const ig = R.Pger / (R.vac || 220); R.inDjGer = prox(DISJ, 1.25 * ig); P.push(["Cargas só com gerador", `Disjuntor ${R.polos}P + contator comandado pela ${b.chave === "auto" ? "ATS" : "reversora"}`, `${R.inDjGer} A`, `circuito separado (${fmt0(R.Pger)} W, ${fmt(ig, 1)} A): o contator só fecha com a chave na posição gerador, então essa carga nunca puxa do inversor`]); }
   if (b.tipo !== "nenhum") P.push(["Transferência", b.chave === "auto" ? `Chave de transferência automática (ATS) ${R.polos}P` : `Chave reversora manual 1-0-2 ${R.polos}P`, `${R.inChave} A`, `In ≥ 1,25·máx(I inversor ${fmt(R.iAc)} A; I ${b.tipo} ${fmt(R.iGer)} A); comuta fase e neutro; intertravamento mecânico`]);
   P.push(["Aterramento", "Equipotencialização de estruturas, carcaças e racks ao BEP", "PE ≥ 6 mm² Cu; aterramento ≥ 16 mm²", "Moldura dos módulos, estrutura, string box, controlador, inversor e rack de baterias no mesmo eletrodo"]);
   /* picos de partida: queda de tensão no banco, limite do BMS e banco capacitivo */
@@ -835,6 +847,8 @@ function materiais(R) {
   if (b !== "li" && R.balN > 0) add("Armazenamento", "bal_pb", R.balN);
   add("Quadro CA", "qdca", 1, `disjuntor ${R.inDjAc} A, DR 30 mA, DPS 275 V`);
   if (S.backup.tipo !== "nenhum") add("Quadro CA", S.backup.chave === "auto" ? "ats" : "rev", 1, `${R.inChave} A ${R.polos}P`);
+  if (R.Pger > 0) add("Quadro CA", "contator", 1, `${R.inDjGer} A ${R.polos}P, bobina 220 V`);
+  if (S.backup.tipo === "gerador" && S.backup.orc === "sim") { const kva = Math.ceil(R.sGerRec / 1000); add("Fonte reserva", "gerador", kva, `gerador de ${kva} kVA, partida elétrica (contato do inversor/ATS)`); }
   add("Cabos", "cabo_fv", 2 * n(S.cabos.lfv) * R.Nstr * R.cFV.s, `${R.Nstr}×2 condutores ${R.cFV.s} mm² × ${S.cabos.lfv} m`);
   add("Cabos", "cabo_bat", 2 * n(S.cabos.lbat) * (R.cBat.s + R.cInv.s * R.invN + R.cCtrl.s * R.nCtrl), `bateria ${R.cBat.s} · inversor ${R.cInv.s} · controlador ${R.cCtrl.s} mm²`);
   add("Cabos", "cabo_ca", 3 * n(S.cabos.lca) * R.cAc.s + (R.cGer ? 3 * (n(S.cabos.lger) || 15) * R.cGer.s : 0), `F+N+PE ${R.cAc.s} mm² × ${S.cabos.lca} m${R.cGer ? ` + ${R.cGer.s} mm² × ${n(S.cabos.lger) || 15} m (reserva)` : ""}`);
@@ -915,6 +929,13 @@ function esquema(R) {
   disj(985, 330, `${R.inDjAc} A`); T(1040, 360, "DR 30 mA", 9); T(1040, 375, "DPS 275 V", 9);
   for (let k = 0; k < 4; k++) { L(965 + k * 30, 420, 965 + k * 30, 470, "k", 1); T(965 + k * 30, 478, `C${k + 1}`, 8); }
   terra(1015, 485);
+  // circuito só com gerador (ex.: chuveiro): contator comandado pela chave de transferência
+  if (tem && R.Pger > 0) {
+    B(950, 140, 130, 70, "CONTATOR + DJ", `${R.inDjGer} A · só gerador`);
+    L(1015, 210, 1015, 280, "k"); T(1022, 248, `${fmt(R.Pger / 1000, 1)} kW`, 9, "s");
+    T(1015, 130, "circuito da carga só c/ gerador", 8, "m", true);
+    L(910, 315, 950, 195, "k", 1, [4, 3]); T(918, 262, "comando", 8, "s");
+  }
   // aterramento geral
   L(40, 600, 1080, 600, "g", 2, [6, 4]); T(560, 615, "PE / equipotencialização — estruturas, string box, controlador, inversor, rack de baterias e quadro ao BEP", 9, "m", false, "g");
   for (const x of [130, 365, 675, 1015]) L(x, x === 1015 ? 500 : (x === 130 ? 382 : x === 365 ? 455 : 570), x, 600, "g", 1, [3, 3]);
@@ -1104,7 +1125,7 @@ const TIPS = {
 };
 
 const TIPS_COL = {
-  c: { nome: "Nome do equipamento.", nat: "Tipo de carga: define o Ip/In e se entra no surto (só motores e compressores).", tipo: "CA: ligado na saída do inversor. CC: ligado direto no banco (cerca, LEDs 12/24 V).", q: "Quantidade de equipamentos iguais.", w: "Potência de cada um em W (placa do equipamento; motores: potência elétrica ≈ cv × 900 W).", h: "Horas de funcionamento por dia (média do mês crítico). Geladeiras/compressores: horas com o motor ligado (≈ 40–50% do dia).", fs: "Simultaneidade: fração que funciona junto no horário de pico (1 = todos).", kp: "Corrente de partida / nominal. Preenchido pelo tipo de carga; ajuste pela placa (código NEMA) ou medição.", crit: "Marque se o equipamento precisa funcionar durante falta da concessionária.", meses: "Meses em que a carga é usada: vazio = ano todo; ex.: dez-mar, jun-ago, 1,2,12. Cargas sazonais (ventilador, irrigação, aquecedor) entram só nesses meses na análise mês a mês." },
+  c: { nome: "Nome do equipamento.", nat: "Tipo de carga: define o Ip/In e se entra no surto (só motores e compressores).", tipo: "CA: ligado na saída do inversor. CC: ligado direto no banco (cerca, LEDs 12/24 V). CA só c/ gerador: só funciona com o gerador ligado (chuveiro, solda, forno elétrico); fica fora da bateria e do inversor e entra no tamanho do gerador e da chave.", q: "Quantidade de equipamentos iguais.", w: "Potência de cada um em W (placa do equipamento; motores: potência elétrica ≈ cv × 900 W).", h: "Horas de funcionamento por dia (média do mês crítico). Geladeiras/compressores: horas com o motor ligado (≈ 40–50% do dia).", fs: "Simultaneidade: fração que funciona junto no horário de pico (1 = todos).", kp: "Corrente de partida / nominal. Preenchido pelo tipo de carga; ajuste pela placa (código NEMA) ou medição.", crit: "Marque se o equipamento precisa funcionar durante falta da concessionária.", meses: "Meses em que a carga é usada: vazio = ano todo; ex.: dez-mar, jun-ago, 1,2,12. Cargas sazonais (ventilador, irrigação, aquecedor) entram só nesses meses na análise mês a mês." },
   tf: { nome: "Nome da água (ex.: Galpão – água norte).", az: "Para onde a água “olha”: N, NE, L, SE, S, SO, O, NO ou graus (N = 0°, L = 90°, S = 180°, O = 270°). Use a bússola do celular olhando para baixo da água.", inc: "Inclinação: graus (ex.: 17) ou caimento do telhado em % (ex.: 30%). Caimento = altura ÷ distância horizontal × 100.", comp: "Comprimento da água ao longo do beiral (m).", larg: "Largura da água do beiral à cumeeira (m), medida no telhado ou na planta (ver opção abaixo).", nmod: "Novo: limite de módulos nessa água (vazio = pela área). Existente: módulos instalados nela." },
   u: { id: "Identificação da bateria (posição no banco).", v: "Tensão em repouso medida pelo analisador (V).", ri: "Resistência interna (mΩ) indicada pelo analisador.", cca: "CCA medido pelo analisador (A).", ccaNom: "CCA nominal da etiqueta, na mesma norma configurada no analisador.", soh: "SOH (%) calculado pelo analisador.", soc: "SOC (%) calculado pelo analisador." },
   mes: "Consumo do mês em kWh, da conta de energia. Deixe em branco os meses sem dado: a ferramenta prevê pela curva anual.",
@@ -1213,6 +1234,7 @@ function boasVindas() {
     <button type="button" class="escolha" data-inicio="existente"><b>Analisar um sistema instalado</b><span>Compara o que existe com o necessário.</span></button>
     <button type="button" class="escolha" data-exemplo="casa-lista"><b>Exemplo: casa (eletrodomésticos)</b><span>Casa rural de 4 pessoas com 13 equipamentos cadastrados um a um.</span></button>
     <button type="button" class="escolha" data-exemplo="casa-conta"><b>Exemplo: casa (contas do ano)</b><span>A mesma casa informada só pelas 12 contas de energia: compare com o anterior.</span></button>
+    <button type="button" class="escolha" data-exemplo="casa-gerador"><b>Exemplo: casa + chuveiro com gerador</b><span>A mesma casa com chuveiro elétrico ligado só pelo gerador, via ATS.</span></button>
     <button type="button" class="escolha" data-exemplo="sitio"><b>Exemplo: sítio leiteiro</b><span>Ordenha, resfriador de leite e bomba, com análise das baterias.</span></button>
     <button type="button" class="escolha" data-inicio="abrir"><b>Abrir projeto salvo</b><span>Arquivo .json exportado por esta ferramenta.</span></button>
   </div></div>`;
@@ -1240,10 +1262,10 @@ function render() {
 function carregarExemplo(k) {
   const temProjeto = S.cargas.length || S.local.rows?.length || S.id.cliente;
   if (temProjeto && !S.exemplo && !confirm("Substituir o projeto atual pelo exemplo? Exporte antes se quiser guardar o atual.")) return;
-  S = k === "sitio" ? exemplo() : exemploCasa(k === "casa-conta" ? "conta" : "lista"); persist();
+  S = k === "sitio" ? exemplo() : exemploCasa(k === "casa-conta" ? "conta" : k === "casa-gerador" ? "gerador" : "lista"); persist();
   document.querySelectorAll("details.menu-ex").forEach(d => d.open = false);
   irPara(k === "sitio" ? 1 : 2);
-  toast(k === "sitio" ? "Exemplo do sítio leiteiro carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)." : k === "casa-conta" ? "Exemplo da casa pelas contas de energia carregado. Compare com o exemplo pelos eletrodomésticos." : "Exemplo da casa pelos eletrodomésticos carregado. Compare com o exemplo pelas contas de energia.");
+  toast(k === "sitio" ? "Exemplo do sítio leiteiro carregado (irradiação ilustrativa: consulte o CRESESB para um projeto real)." : k === "casa-conta" ? "Exemplo da casa pelas contas de energia carregado. Compare com o exemplo pelos eletrodomésticos." : k === "casa-gerador" ? "Exemplo da casa com chuveiro pelo gerador e ATS carregado. Veja a etapa 09 (inversor e transferência)." : "Exemplo da casa pelos eletrodomésticos carregado. Compare com o exemplo pelas contas de energia.");
 }
 function irPara(i) {
   cur = Math.max(0, Math.min(STEPS.length - 1, i)); try { localStorage.setItem(LS + ":etapa", cur); } catch (e) {}
@@ -1307,8 +1329,8 @@ const VIEWS = {
   carg: () => { const k = S.conta; return `<p class="intro">Entre com as cargas <b>uma a uma</b> (dizendo quais são motores) ou pela <b>conta de energia</b> (mês de maior gasto ou os 12 meses). O mês que dimensiona o sistema é o de <b>maior consumo por irradiação</b>: uma conta alta no verão pode não ser o pior caso, porque o inverno gera menos.</p>
     <div class="grid">${fld("entrada", "Entrada de consumo", { opts: [["lista", "Cargas individuais"], ["conta", "Conta de energia (kWh/mês)"]] })}</div>
     ${R.entrada === "lista" ? `<div class="tbl ct"><table><thead><tr><th>Equipamento</th><th>Tipo de carga</th><th>CA/CC</th><th class="r">Qtd</th><th class="r">W unit.</th><th class="r">h/dia</th><th class="r">Simult.</th><th class="r">Ip/In</th><th>Meses</th><th>Crítica</th><th class="r">Wh/dia</th><th></th></tr></thead><tbody>
-    ${S.cargas.map((l, i) => `<tr><td><input class="w-l" data-c="${i}" data-f="nome" type="text" value="${esc(l.nome)}"></td><td><select data-c="${i}" data-f="nat">${Object.entries(NAT).map(([kk, v]) => `<option value="${kk}" ${(l.nat || (n(l.kp) > 1 ? "mot" : "res")) === kk ? "selected" : ""}>${v.t}</option>`).join("")}</select></td><td><select data-c="${i}" data-f="tipo"><option ${l.tipo === "CA" ? "selected" : ""}>CA</option><option ${l.tipo === "CC" ? "selected" : ""}>CC</option></select></td><td><input class="w-s" data-c="${i}" data-f="q" type="number" step="1" value="${l.q}"></td><td><input data-c="${i}" data-f="w" type="number" value="${l.w}"></td><td><input class="w-s" data-c="${i}" data-f="h" type="number" step="0.1" value="${l.h}"></td><td><input class="w-s" data-c="${i}" data-f="fs" type="number" step="0.1" value="${l.fs}"></td><td><input class="w-s" data-c="${i}" data-f="kp" type="number" step="0.5" value="${l.kp}"></td><td><input class="w-s" data-c="${i}" data-f="meses" type="text" value="${esc(l.meses ?? "")}" placeholder="ano todo"></td><td style="text-align:center"><input type="checkbox" style="width:auto" data-c="${i}" data-f="crit" ${critica(l) ? "checked" : ""} title="mantida durante falta da concessionária"></td><td class="num">${fmt0(R.cargas[i].e)}</td><td><button class="btn small danger" type="button" data-del="${i}">Remover</button></td></tr>`).join("")}
-    <tr class="sub"><td colspan="10">Total no mês de maior consumo (CA ${fmt0(R.ECA)} Wh · CC ${fmt0(R.ECC)} Wh)${R.cargas.some(l => l.sazonal) ? " — há cargas sazonais: veja o consumo mês a mês" : ""}</td><td class="num">${fmt0(R.ECA + R.ECC)}</td><td></td></tr></tbody></table></div>
+    ${S.cargas.map((l, i) => `<tr><td><input class="w-l" data-c="${i}" data-f="nome" type="text" value="${esc(l.nome)}"></td><td><select data-c="${i}" data-f="nat">${Object.entries(NAT).map(([kk, v]) => `<option value="${kk}" ${(l.nat || (n(l.kp) > 1 ? "mot" : "res")) === kk ? "selected" : ""}>${v.t}</option>`).join("")}</select></td><td><select data-c="${i}" data-f="tipo"><option value="CA" ${l.tipo === "CA" && l.fonte !== "ger" ? "selected" : ""}>CA</option><option value="CC" ${l.tipo === "CC" ? "selected" : ""}>CC</option><option value="GER" ${l.fonte === "ger" ? "selected" : ""}>CA só c/ gerador</option></select></td><td><input class="w-s" data-c="${i}" data-f="q" type="number" step="1" value="${l.q}"></td><td><input data-c="${i}" data-f="w" type="number" value="${l.w}"></td><td><input class="w-s" data-c="${i}" data-f="h" type="number" step="0.1" value="${l.h}"></td><td><input class="w-s" data-c="${i}" data-f="fs" type="number" step="0.1" value="${l.fs}"></td><td><input class="w-s" data-c="${i}" data-f="kp" type="number" step="0.5" value="${l.kp}"></td><td><input class="w-s" data-c="${i}" data-f="meses" type="text" value="${esc(l.meses ?? "")}" placeholder="ano todo"></td><td style="text-align:center"><input type="checkbox" style="width:auto" data-c="${i}" data-f="crit" ${critica(l) ? "checked" : ""} title="mantida durante falta da concessionária"></td><td class="num">${fmt0(R.cargas[i].e)}</td><td><button class="btn small danger" type="button" data-del="${i}">Remover</button></td></tr>`).join("")}
+    <tr class="sub"><td colspan="10">Total no mês de maior consumo (CA ${fmt0(R.ECA)} Wh · CC ${fmt0(R.ECC)} Wh)${R.Eger ? ` · fora da bateria: ${fmt0(R.Eger)} Wh só com gerador` : ""}${R.cargas.some(l => l.sazonal) ? " — há cargas sazonais: veja o consumo mês a mês" : ""}</td><td class="num">${fmt0(R.ECA + R.ECC)}</td><td></td></tr></tbody></table></div>
     <div class="actions"><button class="btn small" type="button" id="addC" data-tip="Inclui um equipamento. Escolha o tipo de carga para preencher o Ip/In.">+ Equipamento</button></div>
     <p class="note"><b>Tipo de carga</b> define o fator de partida Ip/In: resistiva e eletrônica 1 · motor em partida direta 6 · compressor 5 · motor com soft-starter 3 · motor com inversor de frequência 1,5 (editável). Só motores e compressores entram no surto.</p>` : `
     <div class="block"><h3>Conta de energia</h3><div class="grid">${fld("conta.pior", "Consumo do mês de maior gasto (kWh)", { hint: "da conta; ou preencha os 12 meses abaixo" })}${fld("conta.mesPior", "Mês de maior gasto", { opts: MESES.map((m, i) => [String(i), m]) })}${fld("conta.amp", "Variação anual prevista (%)", { step: "5", hint: "(maior − menor)/maior; rural típico 20–40%" })}${fld("conta.psim", "Potência simultânea máx. (W)", { hint: "demanda; necessária para o inversor" })}${fld("conta.pmotor", "Maior motor/compressor (W)", { hint: "0 se não houver" })}${fld("conta.kp", "Ip/In desse motor", { step: "0.5" })}${fld("conta.fcc", "Fração do consumo em CC (0–1)", { step: "0.05" })}${fld("conta.fcrit", "Fração crítica durante falta (0–1)", { step: "0.05" })}</div>
@@ -1448,9 +1470,10 @@ Vmp,quente = Vmp·[1 + β·(T_máx + 30 − 25)] = ${fmt(R.vmpQ, 2)} V  →  Ns 
 Surto: P_sim + maior motor × (Ip/In − 1) = ${fmt0(R.surto)} W ≤ ${fmt0(R.surtoInv)} W (${S.eq.inv.surto} × P)
 I_cc = P_inv / (η × V_mín) = ${fmt0(R.Pinv)} / (${S.eq.inv.eta} × ${fmt(R.Vb * R.T.vMin, 1)}) = ${fmt0(R.iDcInv)} A    I_ca = ${fmt(R.iAc)} A`)}
     <div class="res">${card("Inversor", R.invN + "× " + fmt(n(S.eq.inv.p) / 1000, 1) + " kW", "onda senoidal pura")}${card("Entrada CC", R.Vb + " V", fmt0(R.iDcInv) + " A máx.")}${card("Saída CA", S.crit.vac + " V", fmt(R.iAc) + " A")}${card("Surto exigido", fmt0(R.surto) + " W", R.surto <= R.surtoInv ? "atendido" : "NÃO atendido")}</div>
-    <div class="block"><h3>Segunda fonte e transferência</h3><div class="grid">${fld("backup.tipo", "Fonte reserva", { opts: [["nenhum", "Nenhuma"], ["gerador", "Gerador a combustível"], ["rede", "Rede da concessionária"]] })}${fld("backup.chave", "Tipo de chave", { opts: [["auto", "Automática (ATS)"], ["manual", "Manual (reversora 1-0-2)"]] })}</div>
-    ${b.tipo !== "nenhum" ? `${formula(`Gerador ≥ 1,25 × (P_sim + P_carregador) = 1,25 × (${fmt0(R.Psim)} + ${fmt0(R.pCarr)}) = ${fmt0(R.pGerRec)} W  →  ${fmt(R.sGerRec / 1000, 1)} kVA (fp 0,8)
+    <div class="block"><h3>Segunda fonte e transferência</h3><div class="grid">${fld("backup.tipo", "Fonte reserva", { opts: [["nenhum", "Nenhuma"], ["gerador", "Gerador a combustível"], ["rede", "Rede da concessionária"]] })}${fld("backup.chave", "Tipo de chave", { opts: [["auto", "Automática (ATS)"], ["manual", "Manual (reversora 1-0-2)"]] })}${b.tipo === "gerador" ? fld("backup.orc", "Gerador no orçamento", { opts: [["nao", "Não (já existe ou é comprado à parte)"], ["sim", "Sim: incluir na lista de materiais"]] }) : ""}</div>
+    ${b.tipo !== "nenhum" ? `${formula(`${R.Pger ? `Gerador ≥ 1,25 × máx(P_sim + P_carregador; P_sim + P_só gerador) = 1,25 × máx(${fmt0(R.Psim)} + ${fmt0(R.pCarr)}; ${fmt0(R.Psim)} + ${fmt0(R.Pger)}) = ${fmt0(R.pGerRec)} W` : `Gerador ≥ 1,25 × (P_sim + P_carregador) = 1,25 × (${fmt0(R.Psim)} + ${fmt0(R.pCarr)}) = ${fmt0(R.pGerRec)} W`}  →  ${fmt(R.sGerRec / 1000, 1)} kVA (fp 0,8)
 Chave: In ≥ 1,25 × máx(I_inv ${fmt(R.iAc)} A; I_gerador ${fmt(R.iGer)} A) = ${fmt(R.iChave)} A  →  ${R.inChave} A, ${R.polos} polos`)}
+    ${R.Pger ? `<p class="note"><b>Cargas só com gerador (${fmt0(R.Pger)} W, ${fmt(R.Eger / 1000, 2)} kWh/dia, até ${fmt(R.hGer, 2)} h/dia):</b> ficam num circuito separado com contator comandado pela chave. Na hora do uso, o gerador é ligado, a ${b.chave === "auto" ? "ATS" : "reversora"} passa a casa para o gerador e o contator libera a carga; com o gerador desligado ela fica sem energia e não descarrega a bateria. O gerador também recarrega o banco pelo carregador do inversor enquanto está ligado. Configure o <b>limite de corrente de entrada CA</b> do inversor para o tamanho do gerador: assim o carregador reduz sozinho enquanto o chuveiro funciona e o gerador não sobrecarrega.</p>` : ""}
     <div class="two"><p class="note ok"><b>Automática (ATS):</b> para cargas que não podem esperar alguém: resfriamento de leite, bombeamento, aviário, incubadora. Comuta sozinha na falta da fonte principal ou com bateria baixa (contato seco do inversor dá a partida no gerador).</p><p class="note"><b>Manual (reversora 1-0-2):</b> mais barata e simples; posição 0 entre as fontes. Serve quando há pessoa no local e a carga tolera a interrupção.</p></div>
     <p class="note warn">Em qualquer caso: <b>intertravamento mecânico</b> (as duas fontes nunca em paralelo), comutação de <b>fase e neutro</b> (cada fonte tem sua ligação neutro-terra) e, se a fonte reserva for a rede, chave homologada pela distribuidora para impedir injeção na rede.</p>` : `<p class="note">Sem fonte reserva, a autonomia de ${S.crit.aut} dia(s) é a única proteção contra sequências de dias nublados. Considere pelo menos uma tomada para gerador portátil com reversora manual.</p>`}</div>${avisos()}`; },
   prot: () => `<p class="intro">Proteções e seções no padrão do projeto elétrico: cada trecho com dispositivo e critério. Lado CC conforme NBR 16690; lado CA conforme NBR 5410.</p>
@@ -1517,7 +1540,7 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.dataset.bind) { const old = getP(t.dataset.bind); setP(t.dataset.bind, t.type === "number" ? (t.value === "" ? "" : n(t.value)) : t.value);
     if (t.dataset.bind === "crit.bat" && old !== t.value) { S.eq.bat = Object.assign({}, TIPOS[t.value].unid); S.crit.dod = TIPOS[t.value].dod; S.crit.ftemp = TIPOS[t.value].ftemp; } }
-  else if (t.dataset.c != null) { const l = S.cargas[+t.dataset.c]; l[t.dataset.f] = t.type === "checkbox" ? (t.checked ? 1 : 0) : t.type === "number" ? n(t.value) : t.value; if (t.dataset.f === "nat") l.kp = NAT[t.value]?.kp ?? 1; }
+  else if (t.dataset.c != null) { const l = S.cargas[+t.dataset.c]; l[t.dataset.f] = t.type === "checkbox" ? (t.checked ? 1 : 0) : t.type === "number" ? n(t.value) : t.value; if (t.dataset.f === "nat") l.kp = NAT[t.value]?.kp ?? 1; if (t.dataset.f === "tipo") { if (t.value === "GER") { l.tipo = "CA"; l.fonte = "ger"; } else delete l.fonte; } }
   else if (t.dataset.tf != null) { S.telhado.faces[+t.dataset.tf][t.dataset.tff] = t.type === "number" ? (t.value === "" ? "" : n(t.value)) : t.value; }
   else if (t.dataset.mes != null) { S.conta.meses[+t.dataset.mes] = t.value === "" ? "" : n(t.value); }
   else if (t.dataset.u != null) { const u = S.analise[+t.dataset.u]; u[t.dataset.uf] = t.type === "number" ? (t.value === "" ? "" : n(t.value)) : t.value; }
@@ -1618,7 +1641,7 @@ async function gerarPDF() {
     /* cargas */
     h1("2. Cargas e consumo");
     if (R.entrada === "lista") table([{ h: "Equipamento", w: 3.4 }, { h: "Tipo", w: 1.6 }, { h: "CA/CC", w: 0.7 }, { h: "Qtd", w: 0.5, a: "r" }, { h: "W", w: 0.8, a: "r" }, { h: "h/dia", w: 0.7, a: "r" }, { h: "Simult.", w: 0.7, a: "r" }, { h: "Ip/In", w: 0.6, a: "r" }, { h: "Meses", w: 0.8 }, { h: "Crít.", w: 0.5 }, { h: "Wh/dia", w: 0.9, a: "r" }],
-      [...R.cargas.map(l => [l.nome, NAT[l.nat]?.t || "-", l.tipo, String(l.q), fmt0(n(l.w)), fmt(n(l.h), 1), fmt(n(l.fs), 1), fmt(l.kp, 1), l.sazonal ? (l.meses || "") : "ano", critica(l) ? "sim" : "-", fmt0(l.e)]), ["Total (mês máx.)", "", "", "", "", "", "", "", "", "", fmt0(R.ECA + R.ECC)]], { bold: [R.cargas.length], size: 7.5 });
+      [...R.cargas.map(l => [l.nome, NAT[l.nat]?.t || "-", l.ger ? "CA ger." : l.tipo, String(l.q), fmt0(n(l.w)), fmt(n(l.h), 1), fmt(n(l.fs), 1), fmt(l.kp, 1), l.sazonal ? (l.meses || "") : "ano", critica(l) ? "sim" : "-", fmt0(l.e)]), ["Total (mês máx.)", "", "", "", "", "", "", "", "", "", fmt0(R.ECA + R.ECC)]], { bold: [R.cargas.length], size: 7.5 });
     else { text(`Entrada pela conta de energia: maior gasto ${fmt0(Math.max(...R.kwhMes))} kWh em ${MESES[R.mesPiorConta]}; variação anual ${S.conta.amp}% (meses sem dado previstos); potência simultânea ${fmt0(R.Psim)} W${R.psimEst ? " (estimada)" : ""}; maior motor ${fmt0(n(S.conta.pmotor))} W, Ip/In ${S.conta.kp}.`); }
     if (R.row) table([{ h: "", w: 1.6 }, ...MESES.map(m => ({ h: m, w: 0.7, a: "r" }))], [["kWh/dia", ...R.Emes.map(v => fmt(v / 1000, 1))], ["HSP", ...R.row.m.map(v => fmt(v, 2))], ["consumo/HSP", ...R.Emes.map((v, i) => fmt(v / 1000 / R.row.m[i], 2))]], { size: 7 });
     text(`Mês de dimensionamento (maior consumo/irradiação): ${MESES[R.mesDim]}. Mês de menor irradiação: ${MESES[R.mesCrit]}.`, { font: FB, size: 8.5 });

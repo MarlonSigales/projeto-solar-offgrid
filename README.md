@@ -283,26 +283,35 @@ A etapa 12 passa a listar só a **adequação**:
 
 Formato `offgrid-agro`, versão 1. Exemplos: [`offgrid-exemplo-sitio-leiteiro.json`](offgrid-exemplo-sitio-leiteiro.json) (sistema isolado novo) e [`projetos/exemplo-backup-residencial.json`](projetos/exemplo-backup-residencial.json) (backup residencial existente, 24 V chumbo, análise e adequação).
 
-### Exemplos da casa: lista de eletrodomésticos × contas de energia
+### Exemplos da casa: eletrodomésticos × contas de energia × chuveiro com gerador e ATS
 
-A mesma casa rural de 4 pessoas (interior de Pelotas/RS, sem rede, sem fonte reserva) em dois arquivos, para comparar os dois métodos de entrada de consumo. Também carregam pelo menu **Carregar exemplo ▾**.
+A mesma casa rural de 4 pessoas (interior de Pelotas/RS, sem rede) em três arquivos, para comparar. Também carregam pelo menu **Carregar exemplo ▾**.
 
-- [`projetos/exemplo-casa-eletrodomesticos.json`](projetos/exemplo-casa-eletrodomesticos.json): 13 equipamentos (geladeira, freezer, 10 lâmpadas LED, TV, roteador, notebook, carregadores, micro-ondas, máquina de lavar, bomba de poço 1/2 cv, ferro, liquidificador e 3 ventiladores só de dezembro a março).
-- [`projetos/exemplo-casa-contas-de-energia.json`](projetos/exemplo-casa-contas-de-energia.json): só as 12 contas (225, 204, 225, 175, 181, 175, 181, 181, 175, 181, 175 e 225 kWh, de jan a dez), iguais ao consumo da lista; a potência simultânea fica em branco (quem só tem a conta não sabe a demanda) e o maior motor é a bomba de 450 W.
+- [`projetos/exemplo-casa-eletrodomesticos.json`](projetos/exemplo-casa-eletrodomesticos.json): 13 equipamentos (geladeira, freezer, 10 lâmpadas LED, TV, roteador, notebook, carregadores, micro-ondas, máquina de lavar, bomba de poço 1/2 cv, ferro, liquidificador e 3 ventiladores só de dezembro a março), sem fonte reserva.
+- [`projetos/exemplo-casa-contas-de-energia.json`](projetos/exemplo-casa-contas-de-energia.json): só as 12 contas (225, 204, 225, 175, 181, 175, 181, 181, 175, 181, 175 e 225 kWh, de jan a dez), iguais ao consumo da lista; potência simultânea em branco (quem só tem a conta não sabe a demanda) e maior motor = bomba de 450 W.
+- [`projetos/exemplo-casa-chuveiro-gerador-ats.json`](projetos/exemplo-casa-chuveiro-gerador-ats.json): a lista + chuveiro de 5.500 W (4 banhos de 10 min = 0,67 h/dia) marcado como **CA só c/ gerador**, gerador a combustível com **ATS** e gerador incluído no orçamento. O chuveiro fica num circuito com contator comandado pela ATS: só recebe energia com a chave na posição gerador, nunca puxa do inversor nem da bateria.
 
-| Resultado | Lista de eletrodomésticos | 12 contas de energia |
-|---|---|---|
-| Consumo no mês de maior gasto | 7,27 kWh/dia | 7,29 kWh/dia |
-| Mês de dimensionamento | jan (ventiladores) | jan |
-| Gerador FV | 3,30 kWp (6 × 550 W, 3S×2P) | 3,30 kWp (6 × 550 W, 3S×2P) |
-| Banco de baterias | 48 V · 500 Ah (25,6 kWh), 5 × LiFePO4 | igual |
-| Autonomia / meses atendidos / vida | 60 h / 12 de 12 / 12 anos | 60 h / 12 de 12 / 12 anos |
-| Potência simultânea | **2.424 W** (somada da lista) | **1.214 W** (estimada: consumo ÷ 6 h) |
-| Potência mínima do inversor (1,25 × simultânea) | **3,0 kW** | **1,5 kW** |
-| Surto de partida | 4.924 W | 3.464 W |
-| Investimento (inversor de 5 kW nos dois) | R$ 82.415,52 | R$ 82.415,52 |
+A última coluna não é um arquivo: é a mesma casa com o chuveiro ligado no inversor e na bateria, sem gerador, só para referência.
 
-A conta acerta a **energia** (painéis e baterias), mas não informa a **potência**: a simultânea estimada sai pela metade da real e um inversor escolhido por ela (1,5 kW) não aguentaria a casa. A lista também mostra quais cargas são sazonais, críticas ou motores. Use a conta para conferir a ordem de grandeza e a lista (ou a demanda medida) para escolher o inversor.
+| Resultado | Eletrodomésticos | 12 contas de energia | + chuveiro com gerador e ATS | + chuveiro na bateria (referência) |
+|---|---|---|---|---|
+| Consumo retirado da bateria (pior mês) | 7,27 kWh/dia | 7,29 kWh/dia | 7,27 kWh/dia | 10,96 kWh/dia |
+| Consumo no gerador | — | — | 3,69 kWh/dia (até 0,67 h/dia) | — |
+| Potência simultânea no inversor | 2.424 W | 1.214 W (estimada) | 2.424 W | 7.924 W |
+| Inversor mínimo / instalado | 3,0 kW / 1 × 5 kW | 1,5 kW / 1 × 5 kW | 3,0 kW / 1 × 5 kW | 9,9 kW / 2 × 5 kW |
+| Surto de partida | 4.924 W | 3.464 W | 4.924 W | 10.424 W |
+| Gerador FV | 3,30 kWp (6 × 550 W) | 3,30 kWp (6 × 550 W) | 3,30 kWp (6 × 550 W) | 4,40 kWp (8 × 550 W) |
+| Banco de baterias (LiFePO4 48 V) | 500 Ah · 25,6 kWh (5 un.) | 500 Ah · 25,6 kWh (5 un.) | 500 Ah · 25,6 kWh (5 un.) | 700 Ah · 35,8 kWh (7 un.) |
+| Autonomia / meses atendidos / vida | 60 h / 12 de 12 / 12 anos | 60 h / 12 de 12 / 12 anos | 60 h / 12 de 12 / 12 anos | 56 h / 12 de 12 / 12 anos |
+| Gerador | — | — | ≥ 12,4 kVA (13 kVA) | — |
+| Transferência | — | — | ATS 80 A 2P + contator 32 A | — |
+| Investimento estimado | R$ 82.415,52 | R$ 82.415,52 | R$ 100.818,96 | R$ 109.919,30 |
+
+Leituras:
+- **Conta × lista:** a conta acerta a energia (painéis e baterias), mas não a potência: a simultânea estimada sai pela metade e um inversor escolhido por ela (1,5 kW) não aguentaria a casa.
+- **Chuveiro com gerador e ATS:** painéis, baterias e inversor ficam iguais aos da casa sem chuveiro; somam-se o gerador, a ATS e o contator (+ R$ 18,4 mil, gerador a R$ 900/kVA estimado). O combustível não entra no investimento.
+- **Chuveiro na bateria:** dobra o inversor, aumenta 40% o banco e 33% os painéis, e custa mais que a solução com gerador, sem ganhar a fonte reserva para os dias nublados.
+- O gerador é dimensionado por 1,25 × máx(casa + carregador; casa + chuveiro): o limite de corrente de entrada CA do inversor reduz o carregador enquanto o chuveiro funciona.
 
 | Chave | Conteúdo |
 |---|---|
